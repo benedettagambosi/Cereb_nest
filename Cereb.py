@@ -93,7 +93,7 @@ conn_receptors = {'aa_goc': 3, 'aa_pc': 1, 'bc_pc': 2, 'dcnp_io': 2, 'gj_bc': 2,
 
 
 class Cereb_class:
-    def __init__(self, nest, hdf5_file_name, cortex_type, n_spike_generators='n_glomeruli', plasticity=False, LTD=None):
+    def __init__(self, nest, hdf5_file_name, cortex_type, n_spike_generators='n_glomeruli', mode='external_dopa', LTD=None):
         # create Basal Ganglia neurons and connections
         # self.N = number_of_neurons  # total BGs pop neurons
         # Create a dictionary where keys = nrntype IDs, values = cell names (strings)
@@ -110,15 +110,20 @@ class Cereb_class:
 
         self.hdf5_file_name = hdf5_file_name
 
-        self.Cereb_pops, self.Cereb_pop_ids, self.WeightPFPC, self.PF_PC_conn = self.create_Cereb(nest, hdf5_file_name, plasticity, LTD)
+        self.Cereb_pops, self.Cereb_pop_ids, self.WeightPFPC, self.PF_PC_conn = self.create_Cereb(nest, hdf5_file_name, mode, LTD)
         # cortex type identifies the type of input given by the Cortex: poissonian or spike generator
         self.CTX_pops = self.create_ctxinput(nest, hdf5_file_name, in_spikes=cortex_type,
-                                             n_spike_generators=n_spike_generators)
+                                             n_spike_generators=n_spike_generators, mode=mode)
 
-    def create_Cereb(self, nest_, pos_file, plasticity, LTD):
+    def create_Cereb(self, nest_, pos_file, mode, LTD):
         ### Load neuron positions from hdf5 file and create them in NEST:
         with h5py.File(pos_file, 'r') as f:
             positions = np.array(f['positions'])
+
+        if mode == 'conditioning':
+            plasticity = True
+        else:
+            plasticity = False
 
         id_2_cell_type = {val: key for key, val in self.cell_type_ID.items()}
         # Sort nrntype IDs
@@ -299,7 +304,8 @@ class Cereb_class:
         pop_ids = {key: (min(neuron_models[key]), max(neuron_models[key])) for key, _ in self.cell_type_ID.items()}
         return Cereb_pops, pop_ids, WeightPFPC, PF_PC_conn
 
-    def create_ctxinput(self, nest_, pos_file=None, in_spikes='poisson', n_spike_generators='n_glomeruli'):
+    def create_ctxinput(self, nest_, pos_file=None, in_spikes='poisson', n_spike_generators='n_glomeruli',
+                        mode='external_dopa'):
         # position glomeruli
         with h5py.File(pos_file, 'r') as f:
             positions = np.array(f['positions'])
@@ -382,6 +388,7 @@ class Cereb_class:
             CTX = nest_.Create('poisson_generator', params={'rate': CS_FREQ})
             nest_.Connect(CTX, id_stim)
 
+
         elif in_spikes == 'poisson':
             print('The cortex input is a poissonian process')
 
@@ -393,24 +400,26 @@ class Cereb_class:
             CTX = nest_.Create('poisson_generator', params={'rate': CS_FREQ, 'start': CS_START, 'stop': CS_END})
             nest_.Connect(CTX, id_stim)
 
-        # US as burst
-        US_START = 750 # beginning of stimulation
-        US_END = 760 # end of stimulation -> like CS_END!
-        US_FREQ = 500.  # Frequency in Hzv
+            # US as burst
+            US_START = 750 # beginning of stimulation
+            US_END = 760 # end of stimulation -> like CS_END!
+            US_FREQ = 500.  # Frequency in Hzv
 
-        spike_nums = np.int(np.round((US_FREQ * (US_END - US_START)) / 1000.))
-        US_array = (np.round(np.linspace(US_START, US_END, spike_nums)))
+            spike_nums = np.int(np.round((US_FREQ * (US_END - US_START)) / 1000.))
+            US_array = (np.round(np.linspace(US_START, US_END, spike_nums)))
 
-        US = ()
-        for ii in range(int(len(self.Cereb_pops['io']) / 2)):  # uncomment to have different IO input in microzones
-            US_new = nest_.Create('spike_generator')
-            nest_.SetStatus(US_new, {'spike_times': US_array})
-            US = US + US_new
+            US = ()
+            for ii in range(int(len(self.Cereb_pops['io']) / 2)):  # uncomment to have different IO input in microzones
+                US_new = nest_.Create('spike_generator')
+                nest_.SetStatus(US_new, {'spike_times': US_array})
+                US = US + US_new
 
-        # Connection to first half of IO, corresponding to first microzone
-        syn_param = {"model": "static_synapse", "weight": 55.0, "delay": 0.1, "receptor_type": 1}
-        nest_.Connect(US, self.Cereb_pops['io'][:int(len(self.Cereb_pops['io']) / 2)],
-                      {'rule': 'one_to_one'}, syn_param)
+            # Connection to first half of IO, corresponding to first microzone
+            syn_param = {"model": "static_synapse", "weight": 55.0, "delay": 0.1, "receptor_type": 1}
+            nest_.Connect(US, self.Cereb_pops['io'][:int(len(self.Cereb_pops['io']) / 2)],
+                          {'rule': 'one_to_one'}, syn_param)
+
+        # in addition, if in conditioning scenario
 
         return {'CTX': CTX}
 
