@@ -6,6 +6,7 @@ __author__ = 'marco'
 
 import numpy as np
 import h5py
+from copy import deepcopy
 
 # Synapse parameters: in E-GLIF, 3 synaptic receptors are present: the first is always associated to exc, the second to inh, the third to remaining synapse type
 Erev_exc = 0.0  # [mV]	#[Cavallari et al, 2014]
@@ -93,7 +94,8 @@ conn_receptors = {'aa_goc': 3, 'aa_pc': 1, 'bc_pc': 2, 'dcnp_io': 2, 'gj_bc': 2,
 
 
 class Cereb_class:
-    def __init__(self, nest, hdf5_file_name, cortex_type, n_spike_generators='n_glomeruli', mode='external_dopa', LTD=None):
+    def __init__(self, nest, hdf5_file_name, cortex_type, n_spike_generators='n_glomeruli',
+                 mode='external_dopa', experiment='active', dopa_depl=0, LTD=None):
         # create Basal Ganglia neurons and connections
         # self.N = number_of_neurons  # total BGs pop neurons
         # Create a dictionary where keys = nrntype IDs, values = cell names (strings)
@@ -110,17 +112,18 @@ class Cereb_class:
 
         self.hdf5_file_name = hdf5_file_name
 
-        self.Cereb_pops, self.Cereb_pop_ids, self.WeightPFPC, self.PF_PC_conn = self.create_Cereb(nest, hdf5_file_name, mode, LTD)
+        self.Cereb_pops, self.Cereb_pop_ids, self.WeightPFPC, self.PF_PC_conn = self.create_Cereb(nest, hdf5_file_name,
+                                                                                                  mode, experiment, dopa_depl, LTD)
         # cortex type identifies the type of input given by the Cortex: poissonian or spike generator
         self.CTX_pops = self.create_ctxinput(nest, hdf5_file_name, in_spikes=cortex_type,
                                              n_spike_generators=n_spike_generators, mode=mode)
 
-    def create_Cereb(self, nest_, pos_file, mode, LTD):
+    def create_Cereb(self, nest_, pos_file, mode, experiment, dopa_depl, LTD):
         ### Load neuron positions from hdf5 file and create them in NEST:
         with h5py.File(pos_file, 'r') as f:
             positions = np.array(f['positions'])
 
-        if mode == 'conditioning':
+        if experiment == 'EBCC':
             plasticity = True
         else:
             plasticity = False
@@ -145,12 +148,22 @@ class Cereb_class:
                     nest_.CopyModel('parrot_neuron', cell_name)
 
             cell_pos = positions[positions[:, 1] == cell_id, :]
-            neuron_models[cell_name] = nest_.Create(cell_name, cell_pos.shape[0])
+            if cell_name == 'purkinje' and mode == 'internal_dopa':
+                n_cells = int(cell_pos.shape[0] * (1. - 0.5 * (-dopa_depl) / 0.8))
+                n_dummy_cells = cell_pos.shape[0] - n_cells
+                neuron_models[cell_name] = nest_.Create(cell_name, n_cells)
+                selected_purkinje = np.random.shuffle(list(deepcopy(neuron_models[cell_name])))
+                nest_.Create(cell_name,
+                             n_dummy_cells)  # create a total of PC equal to h5 file, so that other indexes will be maintained
+            else:   # standard
+                n_cells = cell_pos.shape[0]
+                neuron_models[cell_name] = nest_.Create(cell_name, n_cells)
+
             # initial value variation
-            if cell_name != 'glomerulus' and cell_name != 'io':
+            if cell_name != 'glomerulus':
                 dVinit = [{"Vinit": np.random.uniform(neuron_param[cell_name]['Vinit'] - 10,
                                                       neuron_param[cell_name]['Vinit'] + 10)}
-                          for _ in range(max(neuron_models[cell_name]) - min(neuron_models[cell_name]) + 1)]
+                          for _ in range(n_cells)]
 
                 nest_.SetStatus(neuron_models[cell_name], dVinit)
 
@@ -165,7 +178,7 @@ class Cereb_class:
 
                 # connect weight recorder
                 pf = neuron_models['granule']  # here all pf are present once
-                pc = neuron_models['purkinje']
+                pc = neuron_models['purkinje'][:pc_num]
                 # here all pc are present once
                 pf_idx = [i for i, p in enumerate(pf) if p in [7714, 19132]]
                 pc_idx = [i for i, p in enumerate(pc) if p in [95514, 95473]]
@@ -176,10 +189,10 @@ class Cereb_class:
                            "targets": [pc[i] for i in pc_idx]}
                 WeightPFPC = nest_.Create('weight_recorder', params=recdict)
 
-                # create pf_oc connection. To be done before io_pc
+                # create pf_pc connection. To be done before io_pc
                 connection = np.array(f['connections/pf_pc'])
-                pre = np.array([int(x + 1) for x in connection[:, 0]])  # pre and post may contain repetitions!
-                post = np.array([int(x + 1) for x in connection[:, 1]])
+                pre = np.array([int(x + 1) for x in connection[:, 0]])      # PF  # pre and post may contain repetitions!
+                post = np.array([int(x + 1) for x in connection[:, 1]])     # PC
 
                 # print(pre[20000], post[20000])
                 # print(pre[5000], post[5000])
@@ -204,11 +217,13 @@ class Cereb_class:
                 select_plasticity = True
 
                 if select_plasticity:
+                    # define plasticity only on PC receiving from granule cells connected to MF! (only central circle is connected)
                     connection2 = np.array(f['connections/glom_grc'])
                     pre_glom = np.array([int(x + 1) for x in connection2[:, 0]])
                     post_grc = np.array([int(x + 1) for x in connection2[:, 1]])
 
-                    plastic_ids, _ = self.get_glom_indexes(neuron_models['glomerulus'])
+                    plastic_ids, _ = self.get_glom_indexes(neuron_models['glomerulus'], experiment)
+                    # these are the glom cells receving from input:
                     glom_selected_ids = np.isin(pre_glom, plastic_ids)
                     grc_ids = np.unique(post_grc[glom_selected_ids])
                     grc_selected_ids = np.isin(pre, grc_ids)
@@ -217,7 +232,6 @@ class Cereb_class:
                                  "delay": conn_delays['pf_pc'],
                                  "receptor_type": conn_receptors['pf_pc']}
                     nest_.Connect(pre[np.logical_not(grc_selected_ids)], post[np.logical_not(grc_selected_ids)],
-                                  # here we have a vt every connection, not every pc
                                   {'rule': 'one_to_one',
                                    "multapses": False},
                                   syn_param)
@@ -231,13 +245,16 @@ class Cereb_class:
 
                 # PF-PC excitatory plastic connections
                 post_array = np.array(post, int)
+                if mode == 'internal_dopa':
+                    pc_selected_ids = np.isin(post, selected_purkinje)  # extract only the PC still alive
+                    grc_selected_ids = np.logical_and(grc_selected_ids, pc_selected_ids)
                 idx = np.array((post_array - post_array.min()).tolist())  # list of vt_num, one for each connection
                 syn_param = {"model": 'stdp_synapse_sinexp',
                              "weight": Init_PFPC,
                              "delay": conn_delays['pf_pc'],
                              "receptor_type": conn_receptors['pf_pc'],
                              "vt_num": idx[grc_selected_ids], }
-                nest_.Connect(pre[grc_selected_ids], post[grc_selected_ids],  # here we have a vt every connection, not every pc
+                nest_.Connect(pre[grc_selected_ids], post[grc_selected_ids],
                               {'rule': 'one_to_one',
                                "multapses": False},
                               syn_param)
@@ -304,8 +321,9 @@ class Cereb_class:
         pop_ids = {key: (min(neuron_models[key]), max(neuron_models[key])) for key, _ in self.cell_type_ID.items()}
         return Cereb_pops, pop_ids, WeightPFPC, PF_PC_conn
 
+
     def create_ctxinput(self, nest_, pos_file=None, in_spikes='poisson', n_spike_generators='n_glomeruli',
-                        mode='external_dopa'):
+                        mode='external_dopa', experiment='active'):
         # position glomeruli
         with h5py.File(pos_file, 'r') as f:
             positions = np.array(f['positions'])
@@ -354,7 +372,7 @@ class Cereb_class:
             print('The cortex input is a spike generator')
 
             # create a cortex input
-            id_stim, _ = self.get_glom_indexes(self.Cereb_pops['glomerulus'])
+            id_stim, _ = self.get_glom_indexes(self.Cereb_pops['glomerulus'], experiment)
             CTX = nest_.Create("spike_generator", len(id_stim))  # , params=generator_params)
             syn_param = {"delay": 2.0}
 
@@ -431,18 +449,31 @@ class Cereb_class:
             gloms_pos_xz = gloms_pos[:, [2, 4]]
         return gloms_pos_xz[idx, :]
 
-    def get_glom_indexes(self, glom_pop):
+    def get_glom_indexes(self, glom_pop, experiment):
         with h5py.File(self.hdf5_file_name, 'r') as f:
             positions = np.array(f['positions'])
             glom_posi = positions[positions[:, 1] == self.cell_type_ID['glomerulus'], :]
             glom_xz = glom_posi[:, [2, 4]]
-            x_high_bool = np.array(glom_xz[:, 0].__gt__(200 - 150))      # (200 - 120))  # z > 200 (left in paper)
-            x_low_bool = np.array(glom_xz[:, 0].__lt__(200 + 150))     # (200 + 120))  # z > 200 (left in paper)
-            z_high_bool = np.array(glom_xz[:, 1].__gt__(200 - 150))       # (200 - 20))  # 180 < z < 220 (right in paper)
-            z_low_bool = np.array(glom_xz[:, 1].__lt__(200 + 150))      # (200 + 20))
-            bool_idx = x_low_bool & x_high_bool & z_low_bool & z_high_bool# 180 < z < 220 (right in paper)
-            idx = glom_posi[bool_idx, 0] + 1
-            id_stim = list(set([glom for glom in glom_pop if glom in idx]))
+
+            if experiment == 'EBCC':
+                x_c, z_c = 200., 200.
+
+                RADIUS = 150.  # [um] - radius of glomeruli stimulation cylinder to avoid border effects
+                # Connection to glomeruli falling into the selected volume, i.e. a cylinder in the Granular layer
+                bool_idx = np.sum((glom_xz - np.array([x_c, z_c])) ** 2, axis=1).__lt__(
+                    RADIUS ** 2)  # lt is less then, <
+                target_gloms = glom_posi[bool_idx, 0] + 1
+                id_stim = list(set([glom for glom in glom_pop if glom in target_gloms]))
+
+            elif experiment == 'robot':
+                x_high_bool = np.array(glom_xz[:, 0].__gt__(200 - 150))      # (200 - 120))  # z > 200 (left in paper)
+                x_low_bool = np.array(glom_xz[:, 0].__lt__(200 + 150))     # (200 + 120))  # z > 200 (left in paper)
+                z_high_bool = np.array(glom_xz[:, 1].__gt__(200 - 150))       # (200 - 20))  # 180 < z < 220 (right in paper)
+                z_low_bool = np.array(glom_xz[:, 1].__lt__(200 + 150))      # (200 + 20))
+                bool_idx = x_low_bool & x_high_bool & z_low_bool & z_high_bool# 180 < z < 220 (right in paper)
+                idx = glom_posi[bool_idx, 0] + 1
+                id_stim = list(set([glom for glom in glom_pop if glom in idx]))
+
         return id_stim, bool_idx
 
     def get_glom_indexes_pos_vel(self):
