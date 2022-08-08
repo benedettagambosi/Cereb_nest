@@ -148,16 +148,13 @@ class Cereb_class:
                     nest_.CopyModel('parrot_neuron', cell_name)
 
             cell_pos = positions[positions[:, 1] == cell_id, :]
+            n_cells = cell_pos.shape[0]
+            neuron_models[cell_name] = nest_.Create(cell_name, n_cells)
+
             if cell_name == 'purkinje' and mode == 'internal_dopa':
-                n_cells = int(cell_pos.shape[0] * (1. - 0.5 * (-dopa_depl) / 0.8))
-                n_dummy_cells = cell_pos.shape[0] - n_cells
-                neuron_models[cell_name] = nest_.Create(cell_name, n_cells)
-                selected_purkinje = np.random.shuffle(list(deepcopy(neuron_models[cell_name])))
-                nest_.Create(cell_name,
-                             n_dummy_cells)  # create a total of PC equal to h5 file, so that other indexes will be maintained
-            else:   # standard
-                n_cells = cell_pos.shape[0]
-                neuron_models[cell_name] = nest_.Create(cell_name, n_cells)
+                n_PC_alive = int(cell_pos.shape[0] * (1. - 0.5 * (-dopa_depl) / 0.8))  # number of PC still alive
+                selected_purkinje = np.random.shuffle(
+                    list(deepcopy(neuron_models[cell_name])))[:n_PC_alive]  # indexes of PC still alive
 
             # initial value variation
             if cell_name != 'glomerulus':
@@ -171,32 +168,32 @@ class Cereb_class:
         with h5py.File(pos_file, 'r') as f:
             if plasticity:
                 # create volume transmitters
-                pc_num = max(neuron_models['purkinje']) - min(neuron_models['purkinje']) + 1
+                if mode == 'internal_dopa':
+                    pc_num = n_PC_alive
+                else:
+                    pc_num = max(neuron_models['purkinje']) - min(neuron_models['purkinje']) + 1
                 vt = nest_.Create("volume_transmitter_alberto", pc_num)
                 for n, vti in enumerate(vt):
                     nest_.SetStatus([vti], {"vt_num": n})
 
-                # connect weight recorder
-                pf = neuron_models['granule']  # here all pf are present once
-                pc = neuron_models['purkinje'][:pc_num]
-                # here all pc are present once
-                pf_idx = [i for i, p in enumerate(pf) if p in [7714, 19132]]
-                pc_idx = [i for i, p in enumerate(pc) if p in [95514, 95473]]
-                recdict = {"to_memory": True,
-                           "to_file": False,
-                           "label": "PFPC_",
-                           "senders": [pf[i] for i in pf_idx],
-                           "targets": [pc[i] for i in pc_idx]}
-                WeightPFPC = nest_.Create('weight_recorder', params=recdict)
+                # # connect weight recorder
+                # pf = neuron_models['granule']  # here all pf are present once
+                # pc = neuron_models['purkinje'][:pc_num]
+                # # here all pc are present once
+                # pf_idx = [i for i, p in enumerate(pf) if p in [7714, 19132]]
+                # pc_idx = [i for i, p in enumerate(pc) if p in [95514, 95473]]
+                # recdict = {"to_memory": True,
+                #            "to_file": False,
+                #            "label": "PFPC_",
+                #            "senders": [pf[i] for i in pf_idx],
+                #            "targets": [pc[i] for i in pc_idx]}
+                # WeightPFPC = nest_.Create('weight_recorder', params=recdict)
+                WeightPFPC = None
 
                 # create pf_pc connection. To be done before io_pc
                 connection = np.array(f['connections/pf_pc'])
                 pre = np.array([int(x + 1) for x in connection[:, 0]])      # PF  # pre and post may contain repetitions!
                 post = np.array([int(x + 1) for x in connection[:, 1]])     # PC
-
-                # print(pre[20000], post[20000])
-                # print(pre[5000], post[5000])
-                # print(pre[-5000], post[-5000])
 
                 if LTD is not None:
                     LTD1 = LTD # -1.0e-3*2  # -1.0e-3      # 1/10. than Antonietti test since weight is 1/10.
@@ -208,16 +205,13 @@ class Cereb_class:
                                    "A_plus": LTP1,  # 1.0e-3
                                    "Wmin": 0.0,
                                    "Wmax": conn_weights['pf_pc'] * 10,  # 4.0
-                                   "vt": vt[0],  # ??
-                                   "weight_recorder": WeightPFPC[0]})  # ??
-
-                # Init_PFPC = {'distribution': 'uniform',
-                #              'low': conn_weights['pf_pc'], 'high': 3*conn_weights['pf_pc']}
+                                   "vt": vt[0]})
+                                   # "weight_recorder": WeightPFPC[0]})
 
                 select_plasticity = True
-
                 if select_plasticity:
-                    # define plasticity only on PC receiving from granule cells connected to MF! (only central circle is connected)
+                    # define plasticity only on PC receiving from granule cells connected to MF!
+                    # (only central circle is connected)
                     connection2 = np.array(f['connections/glom_grc'])
                     pre_glom = np.array([int(x + 1) for x in connection2[:, 0]])
                     post_grc = np.array([int(x + 1) for x in connection2[:, 1]])
@@ -228,6 +222,7 @@ class Cereb_class:
                     grc_ids = np.unique(post_grc[glom_selected_ids])
                     grc_selected_ids = np.isin(pre, grc_ids)
 
+                    # for now, connect the ones without plasticity
                     syn_param = {"model": "static_synapse", "weight": conn_weights['pf_pc'],
                                  "delay": conn_delays['pf_pc'],
                                  "receptor_type": conn_receptors['pf_pc']}
@@ -235,7 +230,6 @@ class Cereb_class:
                                   {'rule': 'one_to_one',
                                    "multapses": False},
                                   syn_param)
-
                 else:
                     grc_selected_ids = np.array(np.ones(len(pre)), dtype=bool)
 
@@ -246,8 +240,10 @@ class Cereb_class:
                 # PF-PC excitatory plastic connections
                 post_array = np.array(post, int)
                 if mode == 'internal_dopa':
-                    pc_selected_ids = np.isin(post, selected_purkinje)  # extract only the PC still alive
+                    # extract only the PC still alive
+                    pc_selected_ids = np.isin(post, selected_purkinje)
                     grc_selected_ids = np.logical_and(grc_selected_ids, pc_selected_ids)
+
                 idx = np.array((post_array - post_array.min()).tolist())  # list of vt_num, one for each connection
                 syn_param = {"model": 'stdp_synapse_sinexp',
                              "weight": Init_PFPC,
@@ -288,21 +284,21 @@ class Cereb_class:
                     print("Connections ", conn, " done!")
 
                 else:  # if plasticity
-                    if conn != "pf_pc" and conn != 'io_pc':
+                    if conn not in ["pf_pc", 'io_pc']:
                         ### every other connection ###
-                        if conn not in ['aa_pc', 'bc_pc', 'sc_pc', 'io_sc', 'io_bc', 'io_dcnp', 'io_dcn', 'dcnp_io']:
-                            if conn == "io_bc" or conn == "io_sc":
-                                syn_param = {"model": "static_synapse", "weight": conn_weights[conn],
-                                             "delay": {'distribution': 'normal_clipped', 'low': min_iomli,
-                                                       'mu': conn_delays[conn],
-                                                       'sigma': sd_iomli}, "receptor_type": conn_receptors[conn]}
-                            else:
-                                syn_param = {"model": "static_synapse", "weight": conn_weights[conn],
-                                             "delay": conn_delays[conn],
-                                             "receptor_type": conn_receptors[conn]}
+                        # if conn not in ['aa_pc', 'bc_pc', 'sc_pc', 'io_sc', 'io_bc', 'io_dcnp', 'io_dcn', 'dcnp_io']:
+                        if conn == "io_bc" or conn == "io_sc":
+                            syn_param = {"model": "static_synapse", "weight": conn_weights[conn],
+                                         "delay": {'distribution': 'normal_clipped', 'low': min_iomli,
+                                                   'mu': conn_delays[conn],
+                                                   'sigma': sd_iomli}, "receptor_type": conn_receptors[conn]}
+                        else:
+                            syn_param = {"model": "static_synapse", "weight": conn_weights[conn],
+                                         "delay": conn_delays[conn],
+                                         "receptor_type": conn_receptors[conn]}
 
-                            nest_.Connect(pre, post, {"rule": "one_to_one"}, syn_param)
-                            # print("Connections ", conn, " done!")
+                        nest_.Connect(pre, post, {"rule": "one_to_one"}, syn_param)
+                        print("Connections ", conn, " done!")
 
                     elif conn == "io_pc":
                         ### connection io - pc ###
