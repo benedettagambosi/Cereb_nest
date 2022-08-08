@@ -283,6 +283,7 @@ class Cereb_class:
                     nest_.Connect(pre, post, {"rule": "one_to_one"}, syn_param)
                     print("Connections ", conn, " done!")
 
+
                 else:  # if plasticity
                     if conn not in ["pf_pc", 'io_pc']:
                         ### every other connection ###
