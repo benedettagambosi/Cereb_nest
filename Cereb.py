@@ -151,10 +151,15 @@ class Cereb_class:
             n_cells = cell_pos.shape[0]
             neuron_models[cell_name] = nest_.Create(cell_name, n_cells)
 
-            if cell_name == 'purkinje' and mode == 'internal_dopa':
-                n_PC_alive = int(cell_pos.shape[0] * (1. - 0.5 * (-dopa_depl) / 0.8))  # number of PC still alive
-                selected_purkinje = np.random.shuffle(
-                    list(deepcopy(neuron_models[cell_name])))[:n_PC_alive]  # indexes of PC still alive
+            if cell_name == 'purkinje':
+                if mode == 'internal_dopa':
+                    n_PC_alive = int(cell_pos.shape[0] * (1. - 0.5 * (-dopa_depl) / 0.8))  # number of PC still alive
+                else:
+                    n_PC_alive = cell_pos.shape[0]
+
+                selected_purkinje = list(neuron_models['purkinje'])
+                np.random.shuffle(selected_purkinje)
+                selected_purkinje = selected_purkinje[:n_PC_alive]      # indexes of PC still alive
 
             # initial value variation
             if cell_name != 'glomerulus':
@@ -283,7 +288,6 @@ class Cereb_class:
                     nest_.Connect(pre, post, {"rule": "one_to_one"}, syn_param)
                     print("Connections ", conn, " done!")
 
-
                 else:  # if plasticity
                     if conn not in ["pf_pc", 'io_pc']:
                         ### every other connection ###
@@ -293,12 +297,29 @@ class Cereb_class:
                                          "delay": {'distribution': 'normal_clipped', 'low': min_iomli,
                                                    'mu': conn_delays[conn],
                                                    'sigma': sd_iomli}, "receptor_type": conn_receptors[conn]}
+                            nest_.Connect(pre, post, {"rule": "one_to_one"}, syn_param)
+                        elif conn in ['aa_pc', 'bc_pc', 'sc_pc']:
+                            # connect only the PC still alive
+                            pc_selected_ids = np.isin(post, selected_purkinje)
+                            syn_param = {"model": "static_synapse", "weight": conn_weights[conn],
+                                         "delay": {'distribution': 'normal_clipped', 'low': min_iomli,
+                                                   'mu': conn_delays[conn],
+                                                   'sigma': sd_iomli}, "receptor_type": conn_receptors[conn]}
+                            nest_.Connect(np.array(pre, int)[pc_selected_ids], np.array(post, int)[pc_selected_ids], {"rule": "one_to_one"}, syn_param)
+                        elif conn in ['pc_dcn', 'pc_dcnp']:
+                            # connect only the PC still alive
+                            pc_selected_ids = np.isin(pre, selected_purkinje)
+                            syn_param = {"model": "static_synapse", "weight": conn_weights[conn],
+                                         "delay": {'distribution': 'normal_clipped', 'low': min_iomli,
+                                                   'mu': conn_delays[conn],
+                                                   'sigma': sd_iomli}, "receptor_type": conn_receptors[conn]}
+                            nest_.Connect(np.array(pre, int)[pc_selected_ids], np.array(post, int)[pc_selected_ids], {"rule": "one_to_one"}, syn_param)
                         else:
                             syn_param = {"model": "static_synapse", "weight": conn_weights[conn],
                                          "delay": conn_delays[conn],
                                          "receptor_type": conn_receptors[conn]}
+                            nest_.Connect(pre, post, {"rule": "one_to_one"}, syn_param)
 
-                        nest_.Connect(pre, post, {"rule": "one_to_one"}, syn_param)
                         print("Connections ", conn, " done!")
 
                     elif conn == "io_pc":
@@ -306,10 +327,13 @@ class Cereb_class:
                         # ! io_pc substituted by io_vt
                         idx = [p - min(post) for p in post]  # get pc order, from 0 to n_pc
                         vt = [vt[i] for i in idx]  # reorder vt according to pc new order (before were both ascending)
-                        nest_.Connect(pre, vt, {'rule': 'one_to_one'},  # connected one to one
+                        pc_selected_ids = np.isin(post, selected_purkinje)
+                        nest_.Connect(np.array(pre, int)[pc_selected_ids], np.array(vt, int)[pc_selected_ids],
+                                      {'rule': 'one_to_one'},  # connected one to one
                                       {"model": "static_synapse",  # "receptor_type": conn_receptors[conn]
                                        "weight": 1.0,  # conn_weights[conn]
                                        "delay": conn_delays[conn]})  # 1.0
+
                         print("Connections  io_vt  done!")
 
                     # elif conn != "pf_pc" already done before
