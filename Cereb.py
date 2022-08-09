@@ -238,16 +238,16 @@ class Cereb_class:
                 else:
                     grc_selected_ids = np.array(np.ones(len(pre)), dtype=bool)
 
-                # Init_PFPC = conn_weights['pf_pc']
-                Init_PFPC = np.random.uniform(conn_weights['pf_pc'] * 0.9, conn_weights['pf_pc'] * 1.1,
-                                              size=len(pre[grc_selected_ids]))
-
                 # PF-PC excitatory plastic connections
                 post_array = np.array(post, int)
                 if mode == 'internal_dopa':
                     # extract only the PC still alive
                     pc_selected_ids = np.isin(post, selected_purkinje)
                     grc_selected_ids = np.logical_and(grc_selected_ids, pc_selected_ids)
+
+                # Init_PFPC = conn_weights['pf_pc']
+                Init_PFPC = np.random.uniform(conn_weights['pf_pc'] * 0.9, conn_weights['pf_pc'] * 1.1,
+                                              size=len(pre[grc_selected_ids]))
 
                 idx = np.array((post_array - post_array.min()).tolist())  # list of vt_num, one for each connection
                 syn_param = {"model": 'stdp_synapse_sinexp',
