@@ -39,11 +39,11 @@ neuron_param = {
                  'A2': 172.622,
                  'E_rev1': Erev_exc, 'E_rev2': Erev_inh, 'E_rev3': Erev_exc, 'tau_syn1': tau_exc['purkinje'],
                  'tau_syn2': tau_inh['purkinje'], 'tau_syn3': tau_exc_cfpc},
-    'death_purkinje': {'t_ref': 0.5, 'C_m': 334.0, 'tau_m': 47.0, 'V_th': 100.0, 'V_reset': -69.0, 'Vinit': -59.0,
-                 'E_L': -59.0,
-                 'lambda_0': 4.0, 'tau_V': 3.5, 'I_e': 0., 'kadap': 0., 'k1': 1., 'k2': 1., 'A1': 157.622,
-                 'A2': 172.622,
-                 'E_rev1': Erev_exc, 'E_rev2': Erev_inh, 'E_rev3': Erev_exc, 'tau_syn1': tau_exc['purkinje'],
+    'death_purkinje': {'t_ref': 0.5, 'C_m': 1000.0, 'tau_m': 47.0, 'V_th': 100.0, 'V_reset': -80.0, 'Vinit': -80.0,
+                 'E_L': -80.0,
+                 'lambda_0': 4.0, 'tau_V': 3.5, 'I_e': 0., 'kadap': 0., 'k1': 1., 'k2': 1., 'A1': 0.,
+                 'A2': 0.,
+                 'E_rev1': Erev_inh, 'E_rev2': Erev_inh, 'E_rev3': Erev_inh, 'tau_syn1': tau_exc['purkinje'],
                  'tau_syn2': tau_inh['purkinje'], 'tau_syn3': tau_exc_cfpc},
     'basket': {'t_ref': 1.59, 'C_m': 14.6, 'tau_m': 9.125, 'V_th': -53.0, 'V_reset': -78.0, 'Vinit': -68.0,
                'E_L': -68.0,
@@ -157,6 +157,15 @@ class Cereb_class:
             n_cells = cell_pos.shape[0]
             neuron_models[cell_name] = nest_.Create(cell_name, n_cells)
 
+            # initial value variation
+            if cell_name != 'glomerulus':
+                dVinit = [{"Vinit": np.random.uniform(neuron_param[cell_name]['Vinit'] - 10,
+                                                      neuron_param[cell_name]['Vinit'] + 10)}
+                          for _ in range(n_cells)]
+
+                nest_.SetStatus(neuron_models[cell_name], dVinit)
+
+            # delete death PCs
             if cell_name == 'purkinje':
                 if mode == 'internal_dopa' or mode == 'both_dopa':
                     n_PC_alive = int(cell_pos.shape[0] * (1. - 0.5 * (-dopa_depl) / 0.8))  # number of PC still alive
@@ -169,13 +178,6 @@ class Cereb_class:
                 death_purkinje = all_purkinje[n_PC_alive:]
                 nest_.SetStatus(death_purkinje, neuron_param['death_purkinje'])
 
-            # initial value variation
-            if cell_name != 'glomerulus':
-                dVinit = [{"Vinit": np.random.uniform(neuron_param[cell_name]['Vinit'] - 10,
-                                                      neuron_param[cell_name]['Vinit'] + 10)}
-                          for _ in range(n_cells)]
-
-                nest_.SetStatus(neuron_models[cell_name], dVinit)
 
         ### Load connections from hdf5 file and create them in NEST:
         with h5py.File(pos_file, 'r') as f:
