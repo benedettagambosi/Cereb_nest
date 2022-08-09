@@ -173,10 +173,10 @@ class Cereb_class:
         with h5py.File(pos_file, 'r') as f:
             if plasticity:
                 # create volume transmitters
-                if mode == 'internal_dopa':
-                    pc_num = n_PC_alive
-                else:
-                    pc_num = max(neuron_models['purkinje']) - min(neuron_models['purkinje']) + 1
+                # if mode == 'internal_dopa':
+                #     pc_num = n_PC_alive
+                # else:
+                pc_num = max(neuron_models['purkinje']) - min(neuron_models['purkinje']) + 1
                 vt = nest_.Create("volume_transmitter_alberto", pc_num)
                 for n, vti in enumerate(vt):
                     nest_.SetStatus([vti], {"vt_num": n})
