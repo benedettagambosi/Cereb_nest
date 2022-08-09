@@ -39,6 +39,12 @@ neuron_param = {
                  'A2': 172.622,
                  'E_rev1': Erev_exc, 'E_rev2': Erev_inh, 'E_rev3': Erev_exc, 'tau_syn1': tau_exc['purkinje'],
                  'tau_syn2': tau_inh['purkinje'], 'tau_syn3': tau_exc_cfpc},
+    'death_purkinje': {'t_ref': 0.5, 'C_m': 334.0, 'tau_m': 47.0, 'V_th': 100.0, 'V_reset': -69.0, 'Vinit': -59.0,
+                 'E_L': -59.0,
+                 'lambda_0': 4.0, 'tau_V': 3.5, 'I_e': 0., 'kadap': 0., 'k1': 1., 'k2': 1., 'A1': 157.622,
+                 'A2': 172.622,
+                 'E_rev1': Erev_exc, 'E_rev2': Erev_inh, 'E_rev3': Erev_exc, 'tau_syn1': tau_exc['purkinje'],
+                 'tau_syn2': tau_inh['purkinje'], 'tau_syn3': tau_exc_cfpc},
     'basket': {'t_ref': 1.59, 'C_m': 14.6, 'tau_m': 9.125, 'V_th': -53.0, 'V_reset': -78.0, 'Vinit': -68.0,
                'E_L': -68.0,
                'lambda_0': 1.8, 'tau_V': 1.1, 'I_e': 3.711, 'kadap': 2.025, 'k1': 1.887, 'k2': 1.096, 'A1': 5.953,
@@ -116,7 +122,7 @@ class Cereb_class:
                                                                                                   mode, experiment, dopa_depl, LTD)
         # cortex type identifies the type of input given by the Cortex: poissonian or spike generator
         self.CTX_pops = self.create_ctxinput(nest, hdf5_file_name, in_spikes=cortex_type,
-                                             n_spike_generators=n_spike_generators, mode=mode)
+                                             n_spike_generators=n_spike_generators)
 
     def create_Cereb(self, nest_, pos_file, mode, experiment, dopa_depl, LTD):
         ### Load neuron positions from hdf5 file and create them in NEST:
@@ -152,14 +158,16 @@ class Cereb_class:
             neuron_models[cell_name] = nest_.Create(cell_name, n_cells)
 
             if cell_name == 'purkinje':
-                if mode == 'internal_dopa':
+                if mode == 'internal_dopa' or mode == 'both_dopa':
                     n_PC_alive = int(cell_pos.shape[0] * (1. - 0.5 * (-dopa_depl) / 0.8))  # number of PC still alive
                 else:
                     n_PC_alive = cell_pos.shape[0]
 
-                selected_purkinje = list(neuron_models['purkinje'])
-                np.random.shuffle(selected_purkinje)
-                selected_purkinje = selected_purkinje[:n_PC_alive]      # indexes of PC still alive
+                all_purkinje = list(neuron_models['purkinje'])
+                np.random.shuffle(all_purkinje)
+                selected_purkinje = all_purkinje[:n_PC_alive]      # indexes of PC still alive
+                death_purkinje = all_purkinje[n_PC_alive:]
+                nest_.SetStatus(death_purkinje, neuron_param['death_purkinje'])
 
             # initial value variation
             if cell_name != 'glomerulus':
@@ -241,7 +249,7 @@ class Cereb_class:
 
                 # PF-PC excitatory plastic connections
                 post_array = np.array(post, int)
-                if mode == 'internal_dopa':
+                if mode == 'internal_dopa' or mode == 'both_dopa':
                     # extract only the PC still alive
                     pc_selected_ids = np.isin(post, selected_purkinje)
                     grc_selected_ids = np.logical_and(grc_selected_ids, pc_selected_ids)
@@ -345,7 +353,7 @@ class Cereb_class:
 
 
     def create_ctxinput(self, nest_, pos_file=None, in_spikes='poisson', n_spike_generators='n_glomeruli',
-                        mode='external_dopa', experiment='active'):
+                        experiment='active'):
         # position glomeruli
         with h5py.File(pos_file, 'r') as f:
             positions = np.array(f['positions'])
@@ -477,7 +485,7 @@ class Cereb_class:
             glom_posi = positions[positions[:, 1] == self.cell_type_ID['glomerulus'], :]
             glom_xz = glom_posi[:, [2, 4]]
 
-            if experiment == 'EBCC':
+            if experiment == 'EBCC' or experiment == 'active':
                 x_c, z_c = 200., 200.
 
                 RADIUS = 150.  # [um] - radius of glomeruli stimulation cylinder to avoid border effects
