@@ -77,7 +77,7 @@ neuron_param = {
 conn_weights = {'aa_goc': 1.2, 'aa_pc': 0.7, 'bc_pc': 0.3, 'dcnp_io': 3.0, 'gj_bc': 0.2, 'gj_sc': 0.2, 'glom_dcn': 0.05, \
                 'glom_goc': 1.5, 'glom_grc': 0.15, 'goc_glom': 0.0, 'gj_goc': 0.3, 'goc_grc': 0.6, 'io_dcn': 0.1,
                 'io_dcnp': 0.2,
-                'io_bc': 1.0, 'io_sc': 1.0, 'io_pc': 350.0, 'pc_dcn': 0.4 * 5, 'pc_dcnp': 0.12 * 5, 'pf_bc': 0.015,
+                'io_bc': 1.0, 'io_sc': 1.0, 'io_pc': 350.0, 'pc_dcn': 0.4 * 1.5, 'pc_dcnp': 0.12 * 1.5, 'pf_bc': 0.015,
                 'pf_goc': 0.05, 'pf_pc': 0.007,
                 'pf_sc': 0.015, 'sc_pc': 0.3}
 
