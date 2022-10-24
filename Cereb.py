@@ -215,12 +215,12 @@ class Cereb_class:
                     LTD1 = LTD # -1.0e-3*2  # -1.0e-3      # 1/10. than Antonietti test since weight is 1/10.
                 else:
                     LTD1 = -1.0e-3*2
-                LTP1 = 1.0e-4*0.5
+                LTP1 = 1.0e-5
                 nest_.SetDefaults('stdp_synapse_sinexp',
                                   {"A_minus": LTD1,  # -1.0e-2
                                    "A_plus": LTP1,  # 1.0e-3
                                    "Wmin": 0.0,
-                                   "Wmax": conn_weights['pf_pc'] * 10,  # 4.0
+                                   "Wmax": conn_weights['pf_pc'] * 10,  # 0.007
                                    "vt": vt[0]})
                                    # "weight_recorder": WeightPFPC[0]})
 
