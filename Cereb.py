@@ -101,7 +101,7 @@ conn_receptors = {'aa_goc': 3, 'aa_pc': 1, 'bc_pc': 2, 'dcnp_io': 2, 'gj_bc': 2,
 
 class Cereb_class:
     def __init__(self, nest, hdf5_file_name, cortex_type, n_spike_generators='n_glomeruli',
-                 mode='external_dopa', experiment='active', dopa_depl=0, LTD=None):
+                 mode='external_dopa', experiment='active', dopa_depl=0, LTD=None, LTP=None):
         # create Basal Ganglia neurons and connections
         # self.N = number_of_neurons  # total BGs pop neurons
         # Create a dictionary where keys = nrntype IDs, values = cell names (strings)
@@ -119,12 +119,12 @@ class Cereb_class:
         self.hdf5_file_name = hdf5_file_name
 
         self.Cereb_pops, self.Cereb_pop_ids, self.WeightPFPC, self.PF_PC_conn = self.create_Cereb(nest, hdf5_file_name,
-                                                                                                  mode, experiment, dopa_depl, LTD)
+                                                                                                  mode, experiment, dopa_depl, LTD, LTP)
         # cortex type identifies the type of input given by the Cortex: poissonian or spike generator
         self.CTX_pops = self.create_ctxinput(nest, hdf5_file_name, in_spikes=cortex_type,
                                              n_spike_generators=n_spike_generators)
 
-    def create_Cereb(self, nest_, pos_file, mode, experiment, dopa_depl, LTD):
+    def create_Cereb(self, nest_, pos_file, mode, experiment, dopa_depl, LTD=-1.0e-3*2, LTP=1.0e-5):
         ### Load neuron positions from hdf5 file and create them in NEST:
         with h5py.File(pos_file, 'r') as f:
             positions = np.array(f['positions'])
@@ -211,14 +211,9 @@ class Cereb_class:
                 pre = np.array([int(x + 1) for x in connection[:, 0]])      # PF  # pre and post may contain repetitions!
                 post = np.array([int(x + 1) for x in connection[:, 1]])     # PC
 
-                if LTD is not None:
-                    LTD1 = LTD # -1.0e-3*2  # -1.0e-3      # 1/10. than Antonietti test since weight is 1/10.
-                else:
-                    LTD1 = -1.0e-3*2
-                LTP1 = 1.0e-5
                 nest_.SetDefaults('stdp_synapse_sinexp',
-                                  {"A_minus": LTD1,  # -1.0e-2
-                                   "A_plus": LTP1,  # 1.0e-3
+                                  {"A_minus": LTD,  # -1.0e-2
+                                   "A_plus": LTP,  # 1.0e-3
                                    "Wmin": 0.0,
                                    "Wmax": conn_weights['pf_pc'] * 10,  # 0.007
                                    "vt": vt[0]})
