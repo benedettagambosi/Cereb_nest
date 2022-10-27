@@ -13,3 +13,5 @@ It contains two models of the Cerebellum
 }
 ```
 - Cereb_simple.py: a simplified version of the Cerebellum
+
+Model parameters are defined at the beginning of the respective files.
