@@ -11,10 +11,14 @@ from copy import deepcopy
 # cortex_type = "EBCC2"
 # LTP = 0.000
 # LTD = -0.5
-tot_trials = 1
+tot_trials = 30
 
 pf_pc = 0.4
 ratio = 1/18.67
+pc_dcn = 0.55
+pc_dcnp = 0.03
+ratio_pc_dcn = 45.5/26
+ratio_pc_dcnp = 11.5/26
 # Synapse parameters: in E-GLIF, 3 synaptic receptors are present: the first is always associated to exc, the second to inh, the third to remaining synapse type
 Erev_exc = 0.0  # [mV]	#[Cavallari et al, 2014]
 Erev_inh = -80.0  # [mV]
@@ -42,12 +46,19 @@ neuron_param = {'golgi': {'t_ref': 2.0, 'C_m': 145.0,'tau_m': 44.0,'V_th': -55.0
                'stellate': {'t_ref': 1.59, 'C_m': 14.6,'tau_m': 9.125,'V_th': -53.0,'V_reset': -78.0,'Vinit': -68.0,'E_L': -68.0,
                             'lambda_0':1.8, 'tau_V':1.1,'I_e': 3.711,'kadap': 2.025,'k1': 1.887, 'k2': 1.096,'A1': 5.953,'A2':5.863,
                             'E_rev1': Erev_exc, 'E_rev2': Erev_inh, 'E_rev3': Erev_exc,'tau_syn1': tau_exc['basket'], 'tau_syn2': tau_inh['basket'], 'tau_syn3': tau_exc_cfmli},
-               'dcn': {'t_ref': 0.8, 'C_m': 142.0,'tau_m': 33.0,'V_th': -36.0,'V_reset': -55.0,'Vinit': -45.0,'E_L': -45.0,
-                       'lambda_0':3.5, 'tau_V':3.0,'I_e': 75.385,'kadap': 0.408,'k1': 0.697, 'k2': 0.047,'A1': 13.857,'A2':3.477,
-                       'E_rev1': Erev_exc, 'E_rev2': Erev_inh, 'E_rev3': Erev_exc,'tau_syn1': tau_exc['dcn'], 'tau_syn2': tau_inh['dcn'], 'tau_syn3': tau_exc['dcn']},
-               'dcnp': {'t_ref': 0.8, 'C_m': 56.0,'tau_m': 56.0,'V_th': -39.0,'V_reset': -55.0,'Vinit': -40.0,'E_L': -40.0,
+            #bsb
+               'dcn': {'t_ref': 1.5, 'C_m': 142.0,'tau_m': 33.0,'V_th': -36.0,'V_reset': -55.0,'Vinit': -45.0,'E_L': -45.0,
+                       'lambda_0':3.5, 'tau_V':3.0,'I_e': 185.0,'kadap': 0.408,'k1': 0.697, 'k2': 0.047,'A1': 13.857,'A2':3.477,
+                       'E_rev1': Erev_exc, 'E_rev2': Erev_inh, 'E_rev3': Erev_exc},#'tau_syn1': tau_exc['dcn'], 'tau_syn2': tau_inh['dcn'], 'tau_syn3': tau_exc['dcn']},
+               'dcnp': {'t_ref': 3.0, 'C_m': 56.0,'tau_m': 56.0,'V_th': -39.0,'V_reset': -55.0,'Vinit': -40.0,'E_L': -40.0,
                         'lambda_0':0.9, 'tau_V':1.0,'I_e': 2.384,'kadap': 0.079,'k1': 0.041, 'k2': 0.044,'A1': 176.358,'A2':176.358,
-                        'E_rev1': Erev_exc, 'E_rev2': Erev_inh, 'E_rev3': Erev_exc,'tau_syn1': tau_exc['dcnp'], 'tau_syn2': tau_inh['dcnp'], 'tau_syn3': tau_exc['dcnp']},
+                        'E_rev1': Erev_exc, 'E_rev2': Erev_inh, 'E_rev3': Erev_exc,'tau_syn1': 3.64, 'tau_syn2': 1.14},# 'tau_syn3': tau_exc['dcnp']},
+            #     'dcn': {'t_ref': 0.8, 'C_m': 142.0,'tau_m': 33.0,'V_th': -36.0,'V_reset': -55.0,'Vinit': -45.0,'E_L': -45.0,
+            #            'lambda_0':3.5, 'tau_V':3.0,'I_e': 75.385,'kadap': 0.408,'k1': 0.697, 'k2': 0.047,'A1': 13.857,'A2':3.477,
+            #            'E_rev1': Erev_exc, 'E_rev2': Erev_inh, 'E_rev3': Erev_exc,'tau_syn1': tau_exc['dcn'], 'tau_syn2': tau_inh['dcn'], 'tau_syn3': tau_exc['dcn']},
+            #    'dcnp': {'t_ref': 0.8, 'C_m': 56.0,'tau_m': 56.0,'V_th': -39.0,'V_reset': -55.0,'Vinit': -40.0,'E_L': -40.0,
+            #             'lambda_0':0.9, 'tau_V':1.0,'I_e': 2.384,'kadap': 0.079,'k1': 0.041, 'k2': 0.044,'A1': 176.358,'A2':176.358,
+            #             'E_rev1': Erev_exc, 'E_rev2': Erev_inh, 'E_rev3': Erev_exc,'tau_syn1': tau_exc['dcnp'], 'tau_syn2': tau_inh['dcnp'], 'tau_syn3': tau_exc['dcnp']},
                'io': {'t_ref': 1.0, 'C_m': 189.0,'tau_m': 11.0,'V_th': -35.0,'V_reset': -45.0,'Vinit': -45.0,'E_L': -45.0,
                       'lambda_0':1.2, 'tau_V':0.8,'I_e': -18.101,'kadap': 1.928,'k1': 0.191, 'k2': 0.091,'A1': 1810.93,'A2':1358.197,
                       'E_rev1': Erev_exc, 'E_rev2': Erev_inh, 'E_rev3': Erev_exc,'tau_syn1': tau_exc['io'], 'tau_syn2': tau_inh['io'], 'tau_syn3': tau_exc['io']},
@@ -60,15 +71,18 @@ neuron_param = {'golgi': {'t_ref': 2.0, 'C_m': 145.0,'tau_m': 44.0,'V_th': -55.0
 
 
 # Connection weights
-# conn_weights = {'aa_goc': 1.2, 'aa_pc': 0.7, 'bc_pc': 0.3, 'dcnp_io': 3.0, 'gj_bc': 0.2, 'gj_sc': 0.2, 'glom_dcn': 0.05,\
+# conn_weights = {'pc_dcn': 0.4, 'pc_dcnp': 0.12, 'pf_bc': 0.015, 'pf_goc': 0.05,'pf_pc': pf_pc*ratio, # 0.007, \
+#                 'pf_sc': 0.015, 'sc_pc': 0.3, 'aa_goc': 1.2, 'aa_pc': 0.7, 'bc_pc': 0.3, 'dcnp_io': 3.0, 'gj_bc': 0.2, 'gj_sc': 0.2, 'glom_dcn': 0.05,\
 #                 'glom_goc': 1.5, 'glom_grc': 0.15, 'goc_glom': 0.0, 'gj_goc': 0.3,'goc_grc': 0.6, 'io_dcn': 0.1, 'io_dcnp': 0.2,\
-#                 'io_bc': 1.0,'io_sc': 1.0, 'io_pc': 350.0, 'pc_dcn': 0.4, 'pc_dcnp': 0.12, 'pf_bc': 0.015, 'pf_goc': 0.05,'pf_pc': pf_pc*ratio,\
-#                 'pf_sc': 0.015, 'sc_pc': 0.3}
-
-conn_weights = {'pc_dcn': 0.4, 'pc_dcnp': 0.12, 'pf_bc': 0.015, 'pf_goc': 0.05,'pf_pc': pf_pc*ratio, \
+#                 'io_bc': 1.0,'io_sc': 1.0, 'io_pc': 10.0, }
+# conn_weights = {'pc_dcn': pc_dcn/ratio_pc_dcn, 'pc_dcnp': pc_dcnp/ratio_pc_dcnp, 'pf_bc': 0.015, 'pf_goc': 0.05,'pf_pc': pf_pc*ratio, \
+#                 'pf_sc': 0.015, 'sc_pc': 0.3, 'aa_goc': 1.2, 'aa_pc': 0.7, 'bc_pc': 0.3, 'dcnp_io': 3.0, 'gj_bc': 0.2, 'gj_sc': 0.2, 'glom_dcn': 0.05,\
+#                 'glom_goc': 1.5, 'glom_grc': 0.15, 'goc_glom': 0.0, 'gj_goc': 0.3,'goc_grc': 0.6, 'io_dcn': 0.1, 'io_dcnp': 0.2,\
+#                 'io_bc': 1.0,'io_sc': 1.0, 'io_pc': 40.0, }
+conn_weights = {'pc_dcn': pc_dcn/ratio_pc_dcn, 'pc_dcnp': pc_dcnp/ratio_pc_dcnp, 'pf_bc': 0.015, 'pf_goc': 0.05,'pf_pc': pf_pc*ratio, \
                 'pf_sc': 0.015, 'sc_pc': 0.3, 'aa_goc': 1.2, 'aa_pc': 0.7, 'bc_pc': 0.3, 'dcnp_io': 3.0, 'gj_bc': 0.2, 'gj_sc': 0.2, 'glom_dcn': 0.05,\
                 'glom_goc': 1.5, 'glom_grc': 0.15, 'goc_glom': 0.0, 'gj_goc': 0.3,'goc_grc': 0.6, 'io_dcn': 0.1, 'io_dcnp': 0.2,\
-                'io_bc': 1.0,'io_sc': 1.0, 'io_pc': 350.0, } #350.
+                'io_bc': 1.0,'io_sc': 1.0, 'io_pc': 10.0, } #350.
 
 # Connection delays
 conn_delays = {'aa_goc': 2.0, 'aa_pc': 2.0, 'bc_pc': 4.0, 'dcnp_io': 20.0, 'gj_bc': 1.0, 'gj_sc': 1.0, 'glom_dcn': 4.0,
@@ -113,6 +127,7 @@ class Cereb_class:
 
         self.Cereb_pops, self.Cereb_pop_ids, self.WeightPFPC, self.PF_PC_conn = self.create_Cereb(nest, hdf5_file_name,
                                                                                                   mode, experiment, dopa_depl, LTD, LTP)
+        self.CTX_pops = self.create_ctxinput(nest, pos_file=None, in_spikes='background')
 
     def create_Cereb(self, nest_, pos_file, mode, experiment, dopa_depl, LTD, LTP):
         ### Load neuron positions from hdf5 file and create them in NEST:
@@ -245,9 +260,11 @@ class Cereb_class:
         n = len(id_stim)
         IO_id = self.Cereb_pops['io']
 
+        if in_spikes == "background":
         # Background as Poisson process, always present
-        BG_CTX = nest_.Create('poisson_generator', len(self.Cereb_pops['glomerulus']),params={'rate': 4.0, 'start': 0.0})
-        nest_.Connect(BG_CTX, self.Cereb_pops['glomerulus'], {"rule":"one_to_one"})  # connected to all of them
+
+            CTX = nest_.Create('poisson_generator', len(self.Cereb_pops['glomerulus']),params={'rate': 4.0, 'start': 0.0})
+            nest_.Connect(CTX, self.Cereb_pops['glomerulus'], {"rule":"one_to_one"})  # connected to all of them
 
         if in_spikes == 'spike_generator':
             print('The cortex input is a spike generator')
@@ -342,6 +359,53 @@ class Cereb_class:
             syn_param = {"model": "static_synapse", "weight": 55.0, "delay": RESOLUTION, "receptor_type": 1}
             nest_.Connect(US, self.Cereb_pops['io'][:int(len(self.Cereb_pops['io']) / 2)],
                           {'rule': 'one_to_one'}, syn_param)
+
+        elif in_spikes == "EBCC":
+            
+            IO_id = self.Cereb_pops['io']
+            glom_id, _ = self.get_glom_indexes(self.Cereb_pops['glomerulus'], "EBCC")
+            id_stim = sorted(list(set(glom_id)))
+
+            US_matrix = np.concatenate(
+                            [
+                                np.arange(US["start"], US["end"] + 2, 2)
+                                + len_trial * t
+                                for t in range(tot_trials)
+                            ]
+                        )
+            
+            US_stim = nest_.Create("spike_generator", len(IO_id), {"spike_times":US_matrix})
+            
+            nest_.Connect(US_stim, IO_id, "all_to_all", {"receptor_type": 1, "delay":1.,"weight":10.}) #10.
+
+            self.US = US_stim
+
+            n_mf = 24
+            self.bins = int((CS["end"] - CS["start"])/n_mf)
+
+            n_glom_x_mf = len(glom_id)/n_mf
+            splits = [int(n_glom_x_mf)*i for i in range(1,n_mf+1)]
+            glom_mf = np.split(np.asarray(glom_id),splits)
+            self.map_glom = {}
+            self.CS_stim = nest_.Create("spike_generator", n_mf)
+
+            CS_matrix_start_pre = np.round((np.linspace(100.0, 228.0, 11)))
+            CS_matrix_start_post = np.round((np.linspace(240.0, 368.0, 11)))
+
+            CS_matrix_first_pre = np.concatenate([CS_matrix_start_pre + len_trial * t for t in range(tot_trials)])
+            CS_matrix_first_post = np.concatenate([CS_matrix_start_post + len_trial * t for t in range(tot_trials)])
+            
+            CS_matrix = []
+
+            for i in range(int(n_mf/2)):
+                CS_matrix.append(CS_matrix_first_pre+i)
+                CS_matrix.append(CS_matrix_first_post+i)
+            
+            for sg in range(len(self.CS_stim)):	
+                    nest_.SetStatus(self.CS_stim[sg : sg + 1], params={"spike_times": CS_matrix[sg].tolist()})
+                    nest_.Connect(self.CS_stim[sg : sg + 1], glom_mf[sg].tolist())
+                
+            CTX = self.CS_stim
 
         elif in_spikes == "EBCC2":
             n_mf = 24
@@ -498,7 +562,7 @@ if __name__ == "__main__":
     from marco_nest_utils import utils
     import pickle
     CORES = 24
-    VIRTUAL_CORES = 4
+    VIRTUAL_CORES = 24
     RESOLUTION = 1.
     run_on_vm = False
 # set number of kernels
@@ -511,7 +575,7 @@ if __name__ == "__main__":
     nest.Install(MODULE_PATH)  # Import CerebNEST
 
     hdf5_file_name = "Cereb_nest/scaffold_full_IO_400.0x400.0_microzone.hdf5"
-    Cereb_recorded_names = ['glomerulus', 'purkinje', 'dcn', 'io']
+    Cereb_recorded_names = ['glomerulus', 'purkinje', 'dcn','dcnp', 'io']
     
     CS ={"start":100., "stop":380., "freq":50.}
     US ={"start":350., "stop":380., "freq":500.}
@@ -523,8 +587,8 @@ if __name__ == "__main__":
     # ltd = np.logspace(-4,0,base=2,num=5)
     # ltp = np.logspace(-10,-6,base=2,num=5)
 
-    ltp = [0.0000225]
-    ltd = [0.00006]
+    ltp = [0.000014]
+    ltd = [0.000004]
     i=0
 
     for cortex_type in ["EBCC2"]:
@@ -577,9 +641,9 @@ if __name__ == "__main__":
 
                     
                 rasters = utils.get_spike_values(nest, sd_list, Cereb_recorded_names)
-                with open(f'./cereb_test/rasters_trials_'+cortex_type+"_"+str(tot_trials)+'_LTP_'+str(LTP)+"_LTD_"+str(LTD), 'wb') as pickle_file:
+                with open(f'./cereb_test/rasters_trials_'+cortex_type+"_"+str(tot_trials)+'_LTP_'+str(LTP)+"_LTD_"+str(LTD)+"_test", 'wb') as pickle_file:
                     pickle.dump(rasters, pickle_file)
 
 
-                with open(f'./cereb_test/model_dict_trials_'+cortex_type+"_"+str(tot_trials)+'_LTP_'+str(LTP)+"_LTD_"+str(LTD), 'wb') as pickle_file:
+                with open(f'./cereb_test/model_dict_trials_'+cortex_type+"_"+str(tot_trials)+'_LTP_'+str(LTP)+"_LTD_"+str(LTD)+"_test", 'wb') as pickle_file:
                     pickle.dump(model_dict, pickle_file)
