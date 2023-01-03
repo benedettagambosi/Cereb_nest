@@ -108,7 +108,7 @@ LTP_PFPC = 0.002
 
 
 class Cereb_class:
-    def __init__(self, nest, hdf5_file_name, cortex_type, n_spike_generators='n_glomeruli',
+    def __init__(self, nest, hdf5_file_name, cortex_type = "", n_spike_generators='n_glomeruli',
                  mode='external_dopa', experiment='active', dopa_depl=0, LTD=LTD_PFPC, LTP=LTP_PFPC):
         # create Cereb neurons and connections
         # Create a dictionary where keys = nrntype IDs, values = cell names (strings)
@@ -125,9 +125,14 @@ class Cereb_class:
 
         self.hdf5_file_name = hdf5_file_name
 
-        self.Cereb_pops, self.Cereb_pop_ids, self.WeightPFPC, self.PF_PC_conn = self.create_Cereb(nest, hdf5_file_name,
-                                                                                                  mode, experiment, dopa_depl, LTD, LTP)
-        self.CTX_pops = self.create_ctxinput(nest, pos_file=None, in_spikes='background')
+        self.Cereb_pops, self.Cereb_pop_ids, self.WeightPFPC, self.PF_PC_conn = self.create_Cereb(nest, hdf5_file_name,mode, experiment, dopa_depl, LTD, LTP)
+        
+        background_pops = self.create_ctxinput(nest, pos_file=None, in_spikes='background')
+
+        if not cortex_type:                                                                                          
+            self.CTX_pops = background_pops
+        else:
+            self.CTX_pops = self.create_ctxinput(nest, pos_file=None, in_spikes=cortex_type, n_spike_generators=n_spike_generators)
 
     def create_Cereb(self, nest_, pos_file, mode, experiment, dopa_depl, LTD, LTP):
         ### Load neuron positions from hdf5 file and create them in NEST:
@@ -354,7 +359,7 @@ class Cereb_class:
                 US_new = nest_.Create('spike_generator')
                 nest_.SetStatus(US_new, {'spike_times': US_array})
                 US = US + US_new
-
+            RESOLUTION = nest_.GetKernelStatus("resolution")
             # Connection to first half of IO, corresponding to first microzone
             syn_param = {"model": "static_synapse", "weight": 55.0, "delay": RESOLUTION, "receptor_type": 1}
             nest_.Connect(US, self.Cereb_pops['io'][:int(len(self.Cereb_pops['io']) / 2)],
@@ -486,6 +491,7 @@ class Cereb_class:
             CTX = CS_matrix
 
         else:
+            print("ATTENTION! no cortex input generated")
             CTX = []
             pass
 
@@ -597,11 +603,10 @@ if __name__ == "__main__":
                 i +=1
 
                 nest.ResetKernel()
-                cereb = Cereb_class(nest, hdf5_file_name, cortex_type, n_spike_generators='n_glomeruli',
+                cereb = Cereb_class(nest, hdf5_file_name, n_spike_generators='n_glomeruli',
                             mode='external_dopa', experiment='EBCC', dopa_depl=0, LTD=-LTD, LTP=LTP)
             
                 ct = cereb.create_ctxinput(nest, pos_file=hdf5_file_name, in_spikes=cortex_type, 
-                n_spike_generators='n_glomeruli',
                                     experiment='EBCC', CS =CS, US =US, tot_trials = tot_trials, len_trial = len_trial)
                 recorded_list = [cereb.Cereb_pops[name] for name in Cereb_recorded_names]
                 sd_list = utils.attach_spikedetector(nest, recorded_list)
