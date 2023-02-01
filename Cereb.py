@@ -47,18 +47,18 @@ neuron_param = {'golgi': {'t_ref': 2.0, 'C_m': 145.0,'tau_m': 44.0,'V_th': -55.0
                             'lambda_0':1.8, 'tau_V':1.1,'I_e': 3.711,'kadap': 2.025,'k1': 1.887, 'k2': 1.096,'A1': 5.953,'A2':5.863,
                             'E_rev1': Erev_exc, 'E_rev2': Erev_inh, 'E_rev3': Erev_exc,'tau_syn1': tau_exc['basket'], 'tau_syn2': tau_inh['basket'], 'tau_syn3': tau_exc_cfmli},
             #bsb
-               'dcn': {'t_ref': 1.5, 'C_m': 142.0,'tau_m': 33.0,'V_th': -36.0,'V_reset': -55.0,'Vinit': -45.0,'E_L': -45.0,
-                       'lambda_0':3.5, 'tau_V':3.0,'I_e': 185.0,'kadap': 0.408,'k1': 0.697, 'k2': 0.047,'A1': 13.857,'A2':3.477,
-                       'E_rev1': Erev_exc, 'E_rev2': Erev_inh, 'E_rev3': Erev_exc},#'tau_syn1': tau_exc['dcn'], 'tau_syn2': tau_inh['dcn'], 'tau_syn3': tau_exc['dcn']},
-               'dcnp': {'t_ref': 3.0, 'C_m': 56.0,'tau_m': 56.0,'V_th': -39.0,'V_reset': -55.0,'Vinit': -40.0,'E_L': -40.0,
-                        'lambda_0':0.9, 'tau_V':1.0,'I_e': 2.384,'kadap': 0.079,'k1': 0.041, 'k2': 0.044,'A1': 176.358,'A2':176.358,
-                        'E_rev1': Erev_exc, 'E_rev2': Erev_inh, 'E_rev3': Erev_exc,'tau_syn1': 3.64, 'tau_syn2': 1.14},# 'tau_syn3': tau_exc['dcnp']},
-            #     'dcn': {'t_ref': 0.8, 'C_m': 142.0,'tau_m': 33.0,'V_th': -36.0,'V_reset': -55.0,'Vinit': -45.0,'E_L': -45.0,
-            #            'lambda_0':3.5, 'tau_V':3.0,'I_e': 75.385,'kadap': 0.408,'k1': 0.697, 'k2': 0.047,'A1': 13.857,'A2':3.477,
-            #            'E_rev1': Erev_exc, 'E_rev2': Erev_inh, 'E_rev3': Erev_exc,'tau_syn1': tau_exc['dcn'], 'tau_syn2': tau_inh['dcn'], 'tau_syn3': tau_exc['dcn']},
-            #    'dcnp': {'t_ref': 0.8, 'C_m': 56.0,'tau_m': 56.0,'V_th': -39.0,'V_reset': -55.0,'Vinit': -40.0,'E_L': -40.0,
+            #    'dcn': {'t_ref': 1.5, 'C_m': 142.0,'tau_m': 33.0,'V_th': -36.0,'V_reset': -55.0,'Vinit': -45.0,'E_L': -45.0,
+            #            'lambda_0':3.5, 'tau_V':3.0,'I_e': 185.0,'kadap': 0.408,'k1': 0.697, 'k2': 0.047,'A1': 13.857,'A2':3.477,
+            #            'E_rev1': Erev_exc, 'E_rev2': Erev_inh, 'E_rev3': Erev_exc},#'tau_syn1': tau_exc['dcn'], 'tau_syn2': tau_inh['dcn'], 'tau_syn3': tau_exc['dcn']},
+            #    'dcnp': {'t_ref': 3.0, 'C_m': 56.0,'tau_m': 56.0,'V_th': -39.0,'V_reset': -55.0,'Vinit': -40.0,'E_L': -40.0,
             #             'lambda_0':0.9, 'tau_V':1.0,'I_e': 2.384,'kadap': 0.079,'k1': 0.041, 'k2': 0.044,'A1': 176.358,'A2':176.358,
-            #             'E_rev1': Erev_exc, 'E_rev2': Erev_inh, 'E_rev3': Erev_exc,'tau_syn1': tau_exc['dcnp'], 'tau_syn2': tau_inh['dcnp'], 'tau_syn3': tau_exc['dcnp']},
+            #             'E_rev1': Erev_exc, 'E_rev2': Erev_inh, 'E_rev3': Erev_exc,'tau_syn1': 3.64, 'tau_syn2': 1.14},# 'tau_syn3': tau_exc['dcnp']},
+                'dcn': {'t_ref': 0.8, 'C_m': 142.0,'tau_m': 33.0,'V_th': -36.0,'V_reset': -55.0,'Vinit': -45.0,'E_L': -45.0,
+                       'lambda_0':3.5, 'tau_V':3.0,'I_e': 75.385,'kadap': 0.408,'k1': 0.697, 'k2': 0.047,'A1': 13.857,'A2':3.477,
+                       'E_rev1': Erev_exc, 'E_rev2': Erev_inh, 'E_rev3': Erev_exc,'tau_syn1': tau_exc['dcn'], 'tau_syn2': tau_inh['dcn'], 'tau_syn3': tau_exc['dcn']},
+               'dcnp': {'t_ref': 0.8, 'C_m': 56.0,'tau_m': 56.0,'V_th': -39.0,'V_reset': -55.0,'Vinit': -40.0,'E_L': -40.0,
+                        'lambda_0':0.9, 'tau_V':1.0,'I_e': 2.384,'kadap': 0.079,'k1': 0.041, 'k2': 0.044,'A1': 176.358,'A2':176.358,
+                        'E_rev1': Erev_exc, 'E_rev2': Erev_inh, 'E_rev3': Erev_exc,'tau_syn1': tau_exc['dcnp'], 'tau_syn2': tau_inh['dcnp'], 'tau_syn3': tau_exc['dcnp']},
                'io': {'t_ref': 1.0, 'C_m': 189.0,'tau_m': 11.0,'V_th': -35.0,'V_reset': -45.0,'Vinit': -45.0,'E_L': -45.0,
                       'lambda_0':1.2, 'tau_V':0.8,'I_e': -18.101,'kadap': 1.928,'k1': 0.191, 'k2': 0.091,'A1': 1810.93,'A2':1358.197,
                       'E_rev1': Erev_exc, 'E_rev2': Erev_inh, 'E_rev3': Erev_exc,'tau_syn1': tau_exc['io'], 'tau_syn2': tau_inh['io'], 'tau_syn3': tau_exc['io']},
@@ -75,14 +75,22 @@ neuron_param = {'golgi': {'t_ref': 2.0, 'C_m': 145.0,'tau_m': 44.0,'V_th': -55.0
 #                 'pf_sc': 0.015, 'sc_pc': 0.3, 'aa_goc': 1.2, 'aa_pc': 0.7, 'bc_pc': 0.3, 'dcnp_io': 3.0, 'gj_bc': 0.2, 'gj_sc': 0.2, 'glom_dcn': 0.05,\
 #                 'glom_goc': 1.5, 'glom_grc': 0.15, 'goc_glom': 0.0, 'gj_goc': 0.3,'goc_grc': 0.6, 'io_dcn': 0.1, 'io_dcnp': 0.2,\
 #                 'io_bc': 1.0,'io_sc': 1.0, 'io_pc': 10.0, }
+conn_weights = {'pc_dcn': 0.4, 'pc_dcnp': 0.12, 'pf_bc': 0.015, 'pf_goc': 0.05,'pf_pc': pf_pc*ratio, \
+                'pf_sc': 0.015, 'sc_pc': 0.3, 'aa_goc': 1.2, 'aa_pc': 0.7, 'bc_pc': 0.3, 'dcnp_io': 3.0, 'gj_bc': 0.2, 'gj_sc': 0.2, 'glom_dcn': 0.05,\
+                'glom_goc': 1.5, 'glom_grc': 0.15, 'goc_glom': 0.0, 'gj_goc': 0.3,'goc_grc': 0.6, 'io_dcn': 0.1, 'io_dcnp': 0.2,\
+                'io_bc': 1.0,'io_sc': 1.0, 'io_pc': 40.0, }
+# conn_weights = {'pc_dcn': pc_dcn/ratio_pc_dcn, 'pc_dcnp': pc_dcnp/ratio_pc_dcnp, 'pf_bc': 0.015, 'pf_goc': 0.05,'pf_pc': 0.007, \
+#                 'pf_sc': 0.015, 'sc_pc': 0.3, 'aa_goc': 1.2, 'aa_pc': 0.7, 'bc_pc': 0.3, 'dcnp_io': 3.0, 'gj_bc': 0.2, 'gj_sc': 0.2, 'glom_dcn': 0.05,\
+#                 'glom_goc': 1.5, 'glom_grc': 0.15, 'goc_glom': 0.0, 'gj_goc': 0.3,'goc_grc': 0.6, 'io_dcn': 0.1, 'io_dcnp': 0.2,\
+#                 'io_bc': 1.0,'io_sc': 1.0, 'io_pc': 40.0, }
 # conn_weights = {'pc_dcn': pc_dcn/ratio_pc_dcn, 'pc_dcnp': pc_dcnp/ratio_pc_dcnp, 'pf_bc': 0.015, 'pf_goc': 0.05,'pf_pc': pf_pc*ratio, \
 #                 'pf_sc': 0.015, 'sc_pc': 0.3, 'aa_goc': 1.2, 'aa_pc': 0.7, 'bc_pc': 0.3, 'dcnp_io': 3.0, 'gj_bc': 0.2, 'gj_sc': 0.2, 'glom_dcn': 0.05,\
 #                 'glom_goc': 1.5, 'glom_grc': 0.15, 'goc_glom': 0.0, 'gj_goc': 0.3,'goc_grc': 0.6, 'io_dcn': 0.1, 'io_dcnp': 0.2,\
 #                 'io_bc': 1.0,'io_sc': 1.0, 'io_pc': 40.0, }
-conn_weights = {'pc_dcn': pc_dcn/ratio_pc_dcn, 'pc_dcnp': pc_dcnp/ratio_pc_dcnp, 'pf_bc': 0.015, 'pf_goc': 0.05,'pf_pc': pf_pc*ratio, \
-                'pf_sc': 0.015, 'sc_pc': 0.3, 'aa_goc': 1.2, 'aa_pc': 0.7, 'bc_pc': 0.3, 'dcnp_io': 3.0, 'gj_bc': 0.2, 'gj_sc': 0.2, 'glom_dcn': 0.05,\
-                'glom_goc': 1.5, 'glom_grc': 0.15, 'goc_glom': 0.0, 'gj_goc': 0.3,'goc_grc': 0.6, 'io_dcn': 0.1, 'io_dcnp': 0.2,\
-                'io_bc': 1.0,'io_sc': 1.0, 'io_pc': 10.0, } #350.
+# conn_weights = {'pc_dcn': pc_dcn/ratio_pc_dcn, 'pc_dcnp': pc_dcnp/ratio_pc_dcnp, 'pf_bc': 0.015, 'pf_goc': 0.05,'pf_pc': pf_pc*ratio, \
+#                 'pf_sc': 0.015, 'sc_pc': 0.3, 'aa_goc': 1.2, 'aa_pc': 0.7, 'bc_pc': 0.3, 'dcnp_io': 3.0, 'gj_bc': 0.2, 'gj_sc': 0.2, 'glom_dcn': 0.05,\
+#                 'glom_goc': 1.5, 'glom_grc': 0.15, 'goc_glom': 0.0, 'gj_goc': 0.3,'goc_grc': 0.6, 'io_dcn': 0.1, 'io_dcnp': 0.2,\
+#                 'io_bc': 1.0,'io_sc': 1.0, 'io_pc': 10.0, } #350.
 
 # Connection delays
 conn_delays = {'aa_goc': 2.0, 'aa_pc': 2.0, 'bc_pc': 4.0, 'dcnp_io': 20.0, 'gj_bc': 1.0, 'gj_sc': 1.0, 'glom_dcn': 4.0,
@@ -105,11 +113,21 @@ receiver = {'pf_pc': 'purkinje', 'pf_bc': 'basket', 'pf_sc': 'stellate', 'glom_d
 # Plasticity parameters
 LTD_PFPC = -0.02
 LTP_PFPC = 0.002
+LTD_PFMLI = -0.01
+LTP_PFMLI = 0.001
 
+mli = False
+LTD_MFDCN = -0.001
+LTP_MFDCN = 0.0001
+LTD_PCDCN = -0.001
+LTP_PCDCN = 0.0001
+
+PC_DCN_alpha = LTD_PCDCN/LTP_PCDCN
+PC_DCN_lambda = LTP_PCDCN
 
 class Cereb_class:
     def __init__(self, nest, hdf5_file_name, cortex_type = "", n_spike_generators='n_glomeruli',
-                 mode='external_dopa', experiment='active', dopa_depl=0, LTD=LTD_PFPC, LTP=LTP_PFPC):
+                 mode='external_dopa', experiment='active', dopa_depl=0, LTD=LTD_PFPC, LTP=LTP_PFPC, n_wind = 1):
         # create Cereb neurons and connections
         # Create a dictionary where keys = nrntype IDs, values = cell names (strings)
         # Cell type ID (can be changed without constraints)
@@ -124,7 +142,7 @@ class Cereb_class:
                              'io': 9}
 
         self.hdf5_file_name = hdf5_file_name
-
+        self.n_wind = n_wind
         self.Cereb_pops, self.Cereb_pop_ids, self.WeightPFPC, self.PF_PC_conn = self.create_Cereb(nest, hdf5_file_name,mode, experiment, dopa_depl, LTD, LTP)
         
         background_pops = self.create_ctxinput(nest, pos_file=None, in_spikes='background')
@@ -132,7 +150,7 @@ class Cereb_class:
         if not cortex_type:                                                                                          
             self.CTX_pops = background_pops
         else:
-            self.CTX_pops = self.create_ctxinput(nest, pos_file=None, in_spikes=cortex_type, n_spike_generators=n_spike_generators)
+            self.create_ctxinput(nest, pos_file=None, in_spikes=cortex_type, n_spike_generators=n_spike_generators)
 
     def create_Cereb(self, nest_, pos_file, mode, experiment, dopa_depl, LTD, LTP):
         ### Load neuron positions from hdf5 file and create them in NEST:
@@ -196,40 +214,98 @@ class Cereb_class:
                 pre = [int(x + 1) for x in connection[:, 0]]  # pre and post may contain repetitions!
                 post = [int(x + 1) for x in connection[:, 1]]
                 
-                if "pf_pc" in conn:
-                    if plasticity:
-                        # Init_PFPC = np.random.uniform(conn_weights['pf_pc'] * 0.9, conn_weights['pf_pc'] * 1.1,
-                        #                           size=len(pre[grc_selected_ids]))
+                if "pf_pc" in conn and plasticity:
+                    # Init_PFPC = np.random.uniform(conn_weights['pf_pc'] * 0.9, conn_weights['pf_pc'] * 1.1,
+                    #                           size=len(pre[grc_selected_ids]))
 
-                        # Create 1 volume transmitter for each post-synaptic neuron
-                        vt[receiver[conn]] = nest_.Create("volume_transmitter_alberto",len(np.unique(post)))
-                        print("Created vt for ", conn, " connections")
-                        for n,vti in enumerate(vt[receiver[conn]]):
-                            nest_.SetStatus([vti],{"vt_num" : n})
+                    # Create 1 volume transmitter for each post-synaptic neuron
+                    vt[receiver[conn]] = nest_.Create("volume_transmitter_alberto",len(np.unique(post)))
+                    print("Created vt for ", conn, " connections")
+                    for n,vti in enumerate(vt[receiver[conn]]):
+                        nest_.SetStatus([vti],{"vt_num" : n})
+                    
+                    # Set plastic connection parameters for stdp_synapse_sinexp synapse model
+                    name_plast = 'plast_'+conn
+                    nest_.CopyModel('stdp_synapse_sinexp', name_plast)
+                    nest_.SetDefaults(name_plast,{"A_minus": LTD,   # double - Amplitude of weight change for depression
+                                                "A_plus": LTP,   # double - Amplitude of weight change for facilitation
+                                                "Wmin": 0.0,    # double - Minimum synaptic weight
+                                                "Wmax": 4000.0,     # double - Maximum synaptic weight
+                                                "vt": vt[receiver[conn]][0]})
                         
-                        # Set plastic connection parameters for stdp_synapse_sinexp synapse model
-                        name_plast = 'plast_'+conn
-                        nest_.CopyModel('stdp_synapse_sinexp', name_plast)
-                        nest_.SetDefaults(name_plast,{"A_minus": LTD,   # double - Amplitude of weight change for depression
-                                                    "A_plus": LTP,   # double - Amplitude of weight change for facilitation
+                    syn_param = {"model": name_plast, "weight": conn_weights[conn], "delay": conn_delays[conn], "receptor_type": conn_receptors[conn]}
+
+                    # Create connection and associate a volume transmitter to them
+                    for vt_num, post_cell in enumerate(np.unique(post)):
+                                        syn_param["vt_num"] = float(vt_num)
+                                        indexes = np.where(post == post_cell)[0]
+                                        pre_neurons = np.array(pre)[indexes]
+                                        post_neurons = np.array(post)[indexes]
+                                        nest_.Connect(pre_neurons,post_neurons, {"rule": "one_to_one"}, syn_param)
+
+                elif (conn == "pf_bc" and mli) or (conn =="pf_sc" and mli):
+                    # Create 1 volume transmitter for each post-synaptic neuron
+                    vt[receiver[conn]] = nest_.Create("volume_transmitter_alberto",len(np.unique(post)))
+                    print("Created vt for ", conn, " connections")
+                    for n,vti in enumerate(vt[receiver[conn]]):
+                        nest_.SetStatus([vti],{"vt_num" : n})
+                    
+                    # Set plastic connection parameters for stdp_synapse_alpha synapse model
+                    name_plast = 'plast_'+conn
+                    nest_.CopyModel('stdp_synapse_alpha', name_plast)
+                    nest_.SetDefaults(name_plast,{"A_minus": LTD_PFMLI,   # double - Amplitude of weight change for depression
+                                                    "A_plus": LTP_PFMLI,   # double - Amplitude of weight change for facilitation
                                                     "Wmin": 0.0,    # double - Minimum synaptic weight
                                                     "Wmax": 4000.0,     # double - Maximum synaptic weight
                                                     "vt": vt[receiver[conn]][0]})
-                            
-                        syn_param = {"model": name_plast, "weight": conn_weights[conn], "delay": conn_delays[conn], "receptor_type": conn_receptors[conn]}
+                        
+                    syn_param = {"model": name_plast, "weight": conn_weights[conn], "delay": conn_delays[conn], "receptor_type": conn_receptors[conn]}
 
-                        # Create connection and associate a volume transmitter to them
-                        for vt_num, post_cell in enumerate(np.unique(post)):
+                    # Create connection and associate a volume transmitter to them
+                    for vt_num, post_cell in enumerate(np.unique(post)):
                                             syn_param["vt_num"] = float(vt_num)
                                             indexes = np.where(post == post_cell)[0]
                                             pre_neurons = np.array(pre)[indexes]
                                             post_neurons = np.array(post)[indexes]
                                             nest_.Connect(pre_neurons,post_neurons, {"rule": "one_to_one"}, syn_param)
-                    else:
+                # Plastic connections MFDCN  
+                # elif conn == "glom_dcn" and plasticity and nuclear:
+                #     # Create 1 volume transmitter for each post-synaptic neuron
+                #     vt[receiver[conn]] = nest_.Create("volume_transmitter_alberto",len(np.unique(post)))
+                #     print("Created vt for ", conn, " connections")
+                #     for n,vti in enumerate(vt[receiver[conn]]):
+                #         nest_.SetStatus([vti],{"vt_num" : n})
+                    
+                #     # Set plastic connection parameters for stdp_synapse_cosexp synapse model
+                #     name_plast = 'plast_'+conn
+                #     nest_.CopyModel('stdp_synapse_cosexp', name_plast)
+                #     nest_.SetDefaults(name_plast,{"A_minus": LTD_MFDCN,   # double - Amplitude of weight change for depression
+                #                                     "A_plus": LTP_MFDCN,   # double - Amplitude of weight change for facilitation
+                #                                     "Wmin": 0.0,    # double - Minimum synaptic weight
+                #                                     "Wmax": 4000.0,     # double - Maximum synaptic weight
+                #                                     "vt": vt[receiver[conn]][0]})
+                        
+                #     syn_param = {"model": name_plast, "weight": conn_weights[conn], "delay": conn_delays[conn], "receptor_type": conn_receptors[conn]}
 
-                        syn_param = {"model": "static_synapse", "weight": conn_weights[conn], "delay": conn_delays[conn],"receptor_type": conn_receptors[conn]}
-                        nest_.Connect(pre,post, {"rule": "one_to_one"}, syn_param)
-    
+                #     # Create connection and associate a volume transmitter to them
+                #     for vt_num, post_cell in enumerate(np.unique(post)):
+                #                             syn_param["vt_num"] = float(vt_num)
+                #                             indexes = np.where(post == post_cell)[0]
+                #                             pre_neurons = np.array(pre)[indexes]
+                #                             post_neurons = np.array(post)[indexes]
+                #                             # nest_.Connect(pre_neurons,post_neurons, {"rule": "all_to_all"}, syn_param)
+                # Plastic connections PCDCN       
+                # elif conn == "pc_dcn" and plasticity and nuclear:
+                #     # Set plastic connection parameters for stdp_synapse synapse model
+                #     nest_.SetDefaults('stdp_synapse',{"tau_plus": 30.0,
+                #                                         "lambda": PC_DCN_lambda, #LTP_PCDCN,
+                #                                         "alpha": PC_DCN_alpha,#conn_param[name]['ltd']/conn_param[name]['ltp'],
+                #                                         "mu_plus": 0.001,
+                #                                         "mu_minus": 0.005,})
+                        
+                #     syn_param = {"model": 'stdp_synapse', "weight": conn_weights[conn], "delay": conn_delays[conn], "receptor_type": conn_receptors[conn]}
+                    # nest_.Connect(pre, post, {"rule": "one_to_one"}, syn_param)
+
                 # Static connections with distributed delay                                
                 elif conn == "io_bc" or conn == "io_sc":
                     syn_param = {"model": "static_synapse", "weight": conn_weights[conn], \
@@ -243,6 +319,10 @@ class Cereb_class:
                     nest_.Connect(pre,post, {"rule": "one_to_one"}, syn_param)
     
                 # If a connection is a teaching one, also the corresponding volume transmitter should be connected
+                if (conn == "io_bc" or conn == "io_sc") and mli:                                     
+                    post_n = np.array(post)-neuron_models[receiver[conn]][0] +vt[receiver[conn]][0]
+                    nest_.Connect(np.asarray(pre, int), np.asarray(post_n, int), {"rule": "one_to_one"},{"model": "static_synapse", "weight": 1.0, "delay": 1.0})
+                
                 if conn == "io_pc" and plasticity:                                     
                     post_n = np.array(post)-neuron_models[receiver[conn]][0] +vt[receiver[conn]][0]
                     nest_.Connect(np.asarray(pre, int), np.asarray(post_n, int), {"rule": "one_to_one"},{"model": "static_synapse", "weight": 1.0, "delay": 1.0})
@@ -258,7 +338,7 @@ class Cereb_class:
 
 
     def create_ctxinput(self, nest_, pos_file=None, in_spikes='poisson', n_spike_generators='n_glomeruli',
-                        experiment='active', CS ={"start":500., "stop":760., "freq":36.}, US ={"start":750., "stop":760., "freq":500.}, tot_trials = None, len_trial = None):
+                        experiment='active', CS ={"start":500., "end":760., "freq":36.}, US ={"start":750., "end":760., "freq":500.}, tot_trials = None, len_trial = None):
 
         glom_id, _ = self.get_glom_indexes(self.Cereb_pops['glomerulus'], "EBCC")
         id_stim = sorted(list(set(glom_id)))
@@ -295,6 +375,59 @@ class Cereb_class:
                 post = id_stim[round((n_s_g - 1) * n_targets):]
                 nest_.Connect([CTX[n_s_g - 1]], post, {'rule': 'all_to_all'}, syn_param)
 
+        if in_spikes == 'spike_generator_ebcc':
+            print('The cortex input is a spike generator')
+
+            if n_spike_generators == 'n_glomeruli':
+                n_s_g = n  # create one spike generator for each input population
+            else:
+                n_s_g = n_spike_generators  # create n_s_g, randomly connected to the input population
+
+            # create a cortex input
+            CTX = nest_.Create("spike_generator", n_s_g)  # , params=generator_params)
+            syn_param = {"delay": 2.0}
+
+            # connect
+            if n_spike_generators == 'n_glomeruli':
+                nest_.Connect(CTX, id_stim, {'rule': 'one_to_one'}, syn_param)
+            else:
+                np.random.shuffle(id_stim)
+                n_targets = len(id_stim) / n_s_g
+                for i in range(n_s_g - 1):
+                    post = id_stim[round(i * n_targets):round((i + 1) * n_targets)]
+                    nest_.Connect([CTX[i]], post, {'rule': 'all_to_all'})
+                post = id_stim[round((n_s_g - 1) * n_targets):]
+                nest_.Connect([CTX[n_s_g - 1]], post, {'rule': 'all_to_all'}, syn_param)
+
+            # Create an empty dictionary 
+            split_dict = {}  
+            size_chunks = int(len(CTX)/self.n_wind)
+            # Split the original list into chunks of size n
+            k= 0 
+            for i in range(0, len(CTX), size_chunks): 
+                split_list = CTX[i:i+size_chunks] 
+                key = "CTX_" + str(k) 
+                split_dict[key] = split_list 
+                k+=1
+            self.CTX_pops = split_dict
+            # CTX_1 = CTX[:int(n_s_g/2)]
+            # CTX_2 = CTX[int(n_s_g/2):]
+            # self.CTX_pops = {"CTX_1": CTX_1, "CTX_2": CTX_2}
+            
+            IO_id = self.Cereb_pops['io']
+            US_matrix = np.concatenate(
+                            [
+                                np.arange(US["start"], US["end"] + 2, 2)
+                                + len_trial * t
+                                for t in range(tot_trials)
+                            ]
+                        )
+            
+            US_stim = nest_.Create("spike_generator", len(IO_id), {"spike_times":US_matrix})
+            
+            nest_.Connect(US_stim, IO_id, "all_to_all", {"receptor_type": 1, "delay":1.,"weight":10.}) #10.
+
+            self.US = US_stim
 
         elif in_spikes == 'spike_generator_control': #simulated arm
             print('The cortex input is a spike generator')
@@ -334,12 +467,36 @@ class Cereb_class:
             CTX = nest_.Create('poisson_generator', params={'rate': CS_FREQ})
             nest_.Connect(CTX, id_stim)
 
+        elif in_spikes == 'EBCC_poisson':
+            print('The cortex input is a poissonian process')
 
+            sg = int(n/2)
+            # Simulate a conscious stimulus
+            CTX_1 = nest_.Create('poisson_generator', sg)
+            CTX_2 = nest_.Create('poisson_generator', sg)
+            nest_.Connect(CTX, id_stim[:sg], {'rule': 'all_to_all'})
+            nest_.Connect(CTX, id_stim[sg:], {'rule': 'one_to_one'})
+
+
+            US_matrix = np.concatenate(
+                            [
+                                np.arange(US["start"], US["end"] + 2, 2)
+                                + len_trial * t
+                                for t in range(tot_trials)
+                            ]
+                        )
+            
+            US_stim = nest_.Create("spike_generator", len(IO_id), {"spike_times":US_matrix})
+            
+            nest_.Connect(US_stim, IO_id, "all_to_all", {"receptor_type": 1, "delay":1.,"weight":10.}) #10.
+
+            self.US = US_stim
+            
         elif in_spikes == 'poisson': #EBCC
             print('The cortex input is a poissonian process')
 
             CS_START = CS["start"]   # beginning of stimulation
-            CS_END = CS["stop"]     # end of stimulation
+            CS_END = CS["end"]     # end of stimulation
             CS_FREQ = CS["freq"]  # Frequency in Hz (considering the background at 4 Hz (sum of Poisson processes = Poisson proc with the sum of rates)
 
             # Simulate a conscious stimulus
@@ -348,7 +505,7 @@ class Cereb_class:
 
             # US as burst
             US_START = US["start"] # beginning of stimulation
-            US_END = US["stop"] # end of stimulation -> like CS_END!
+            US_END = US["end"] # end of stimulation -> like CS_END!
             US_FREQ = US["start"]  # Frequency in Hzv
 
             spike_nums = np.int(np.round((US_FREQ * (US_END - US_START)) / 1000.))
