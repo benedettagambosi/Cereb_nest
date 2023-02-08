@@ -150,7 +150,7 @@ class Cereb_class:
         if not cortex_type:                                                                                          
             self.CTX_pops = background_pops
         else:
-            self.create_ctxinput(nest, pos_file=None, in_spikes=cortex_type, n_spike_generators=n_spike_generators)
+            self.CTX_pops = self.create_ctxinput(nest, pos_file=None, in_spikes=cortex_type, n_spike_generators=n_spike_generators)
 
     def create_Cereb(self, nest_, pos_file, mode, experiment, dopa_depl, LTD, LTP):
         ### Load neuron positions from hdf5 file and create them in NEST:
@@ -351,7 +351,7 @@ class Cereb_class:
             CTX = nest_.Create('poisson_generator', len(self.Cereb_pops['glomerulus']),params={'rate': 4.0, 'start': 0.0})
             nest_.Connect(CTX, self.Cereb_pops['glomerulus'], {"rule":"one_to_one"})  # connected to all of them
 
-        if in_spikes == 'spike_generator':
+        elif in_spikes == 'spike_generator':
             print('The cortex input is a spike generator')
 
             if n_spike_generators == 'n_glomeruli':
@@ -375,7 +375,7 @@ class Cereb_class:
                 post = id_stim[round((n_s_g - 1) * n_targets):]
                 nest_.Connect([CTX[n_s_g - 1]], post, {'rule': 'all_to_all'}, syn_param)
 
-        if in_spikes == 'spike_generator_ebcc':
+        elif in_spikes == 'spike_generator_ebcc':
             print('The cortex input is a spike generator')
 
             if n_spike_generators == 'n_glomeruli':
