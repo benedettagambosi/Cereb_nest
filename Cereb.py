@@ -11,13 +11,13 @@ from copy import deepcopy
 # cortex_type = "EBCC2"
 # LTP = 0.000
 # LTD = -0.5
-tot_trials = 30
+tot_trials = 1
 
 pf_pc = 0.4
 ratio = 1/18.67
 pc_dcn = 0.55
 pc_dcnp = 0.03
-ratio_pc_dcn = 45.5/26
+ratio_pc_dcn = 34/26
 ratio_pc_dcnp = 11.5/26
 # Synapse parameters: in E-GLIF, 3 synaptic receptors are present: the first is always associated to exc, the second to inh, the third to remaining synapse type
 Erev_exc = 0.0  # [mV]	#[Cavallari et al, 2014]
@@ -71,14 +71,18 @@ neuron_param = {'golgi': {'t_ref': 2.0, 'C_m': 145.0,'tau_m': 44.0,'V_th': -55.0
 
 
 # Connection weights
-# conn_weights = {'pc_dcn': 0.4, 'pc_dcnp': 0.12, 'pf_bc': 0.015, 'pf_goc': 0.05,'pf_pc': pf_pc*ratio, # 0.007, \
+# conn_weights = {'pc_dcn': 0.4, 'pc_dcnp': 0.12, 'pf_bc': 0.015, 'pf_goc': 0.05,'pf_pc': 0.007, \
 #                 'pf_sc': 0.015, 'sc_pc': 0.3, 'aa_goc': 1.2, 'aa_pc': 0.7, 'bc_pc': 0.3, 'dcnp_io': 3.0, 'gj_bc': 0.2, 'gj_sc': 0.2, 'glom_dcn': 0.05,\
 #                 'glom_goc': 1.5, 'glom_grc': 0.15, 'goc_glom': 0.0, 'gj_goc': 0.3,'goc_grc': 0.6, 'io_dcn': 0.1, 'io_dcnp': 0.2,\
-#                 'io_bc': 1.0,'io_sc': 1.0, 'io_pc': 10.0, }
+#                 'io_bc': 1.0,'io_sc': 1.0, 'io_pc': 40.0, }
 conn_weights = {'pc_dcn': 0.4, 'pc_dcnp': 0.12, 'pf_bc': 0.015, 'pf_goc': 0.05,'pf_pc': pf_pc*ratio, \
                 'pf_sc': 0.015, 'sc_pc': 0.3, 'aa_goc': 1.2, 'aa_pc': 0.7, 'bc_pc': 0.3, 'dcnp_io': 3.0, 'gj_bc': 0.2, 'gj_sc': 0.2, 'glom_dcn': 0.05,\
                 'glom_goc': 1.5, 'glom_grc': 0.15, 'goc_glom': 0.0, 'gj_goc': 0.3,'goc_grc': 0.6, 'io_dcn': 0.1, 'io_dcnp': 0.2,\
                 'io_bc': 1.0,'io_sc': 1.0, 'io_pc': 40.0, }
+# conn_weights = {'pc_dcn': 0.4, 'pc_dcnp': 0.12, 'pf_bc': 0.074, 'pf_goc': 0.05,'pf_pc': pf_pc*ratio, \
+#                 'pf_sc': 0.08, 'sc_pc': 0.3, 'aa_goc': 1.2, 'aa_pc': 0.7, 'bc_pc': 0.3, 'dcnp_io': 3.0, 'gj_bc': 0.2, 'gj_sc': 0.2, 'glom_dcn': 0.05,\
+#                 'glom_goc': 1.5, 'glom_grc': 0.15, 'goc_glom': 0.0, 'gj_goc': 0.3,'goc_grc': 0.6, 'io_dcn': 0.1, 'io_dcnp': 0.2,\
+#                 'io_bc': 1.0,'io_sc': 1.0, 'io_pc': 40.0, }
 # conn_weights = {'pc_dcn': pc_dcn/ratio_pc_dcn, 'pc_dcnp': pc_dcnp/ratio_pc_dcnp, 'pf_bc': 0.015, 'pf_goc': 0.05,'pf_pc': 0.007, \
 #                 'pf_sc': 0.015, 'sc_pc': 0.3, 'aa_goc': 1.2, 'aa_pc': 0.7, 'bc_pc': 0.3, 'dcnp_io': 3.0, 'gj_bc': 0.2, 'gj_sc': 0.2, 'glom_dcn': 0.05,\
 #                 'glom_goc': 1.5, 'glom_grc': 0.15, 'goc_glom': 0.0, 'gj_goc': 0.3,'goc_grc': 0.6, 'io_dcn': 0.1, 'io_dcnp': 0.2,\
@@ -724,6 +728,7 @@ if __name__ == "__main__":
     from pathlib import Path
     from marco_nest_utils import utils
     import pickle
+    import os
     CORES = 24
     VIRTUAL_CORES = 24
     RESOLUTION = 1.
@@ -740,72 +745,119 @@ if __name__ == "__main__":
     hdf5_file_name = "Cereb_nest/scaffold_full_IO_400.0x400.0_microzone.hdf5"
     Cereb_recorded_names = ['glomerulus', 'purkinje', 'dcn','dcnp', 'io']
     
-    CS ={"start":100., "stop":380., "freq":50.}
-    US ={"start":350., "stop":380., "freq":500.}
-    
-    baseline = 200
-    len_trial = CS["stop"] + baseline
-    set_time = 0
-
+    ebcc = False
+    if ebcc:
+        CS ={"start":100., "stop":380., "freq":50.}
+        US ={"start":350., "stop":380., "freq":500.}
+        
+        baseline = 200
+        len_trial = CS["stop"] + baseline
+        set_time = 0
+        ltp = [0.000014]
+        ltd = [0.000004]
+        i=0
+    else:
+        len_trial = 3000.
+        set_time = 1000.
     # ltd = np.logspace(-4,0,base=2,num=5)
     # ltp = np.logspace(-10,-6,base=2,num=5)
 
-    ltp = [0.000014]
-    ltd = [0.000004]
-    i=0
+    for j in range(10):
+        nest.ResetKernel()
+        nest.SetKernelStatus({'grng_seed': 100 * j + 1,
+                            'rng_seeds': [100 * j + k for k in range(2,26)],
+                            'local_num_threads': CORES, 'total_num_virtual_procs': CORES})
+        nest.set_verbosity("M_ERROR")  # reduce plotted info
+        savings_dir = f'./savings/cereb_active_trial_{j}'
+        if not os.path.exists(savings_dir): os.makedirs(savings_dir)  # create folder if not present
 
-    for cortex_type in ["EBCC2"]:
-        for LTP in ltp:
-            for LTD in ltd:
-                i +=1
+        if ebcc:
+            for cortex_type in ["EBCC2"]:
+                for LTP in ltp:
+                    for LTD in ltd:
+                        i +=1
 
-                nest.ResetKernel()
-                cereb = Cereb_class(nest, hdf5_file_name, n_spike_generators='n_glomeruli',
-                            mode='external_dopa', experiment='EBCC', dopa_depl=0, LTD=-LTD, LTP=LTP)
+                        nest.ResetKernel()
+                        cereb = Cereb_class(nest, hdf5_file_name, n_spike_generators='n_glomeruli',
+                                    mode='external_dopa', experiment='EBCC', dopa_depl=0, LTD=-LTD, LTP=LTP)
+                    
+                        ct = cereb.create_ctxinput(nest, pos_file=hdf5_file_name, in_spikes=cortex_type, 
+                                            experiment='EBCC', CS =CS, US =US, tot_trials = tot_trials, len_trial = len_trial)
+                        recorded_list = [cereb.Cereb_pops[name] for name in Cereb_recorded_names]
+                        sd_list = utils.attach_spikedetector(nest, recorded_list)
+                        
+                        model_dict = utils.create_model_dictionary(0, Cereb_recorded_names, {**cereb.Cereb_pop_ids}, len_trial,
+                                                                    sample_time=1., settling_time=set_time,
+                                                                    trials=tot_trials, b_c_params=[])
+                        
+
+                        print("Simulating settling time: " + str(set_time) )
+
+                        #nest.Simulate(set_time)
+
+                        
+                        for trial in range(tot_trials):
+                            
+                            '''
+                            # CS_spk = np.around(np.linspace(CS["start"]+ set_time +(trial*len_trial),CS["stop"]+ set_time +(trial*len_trial),22), decimals=1)
+                            # CS_stim = nest.Create("spike_generator", len(glom_id), {"spike_times":CS_spk})
+
+                            # CS_stim = nest.Create("poisson_generator", len(glom_id), {"start":500.+(trial*len_trial), "stop":760.+(trial*len_trial), "rate":36.})
+                            #nest.Connect(CS_stim, glom_id, "one_to_one")
+                            '''
+
+                            '''
+                            # US_spk = np.around(np.linspace(US["start"]+ set_time +(trial*len_trial),US["stop"]+ set_time +(trial*len_trial),int(US["freq"]*1000/(US["stop"]-US["start"]))), decimals=1)
+                            # US_stim = nest.Create("spike_generator", len(IO_id), {"spike_times":US_spk})
+                            
+                            # US_stim = nest.Create("poisson_generator", len(IO_id), {"start":750.+(trial*len_trial), "stop":760.+(trial*len_trial), "rate":200.})
+                            nest.Connect(US_stim, IO_id, "all_to_all", {"receptor_type": 1, "delay":1.,"weight":10.})
+                            '''
+                            
+                            print("Simulating trial: " + str(trial +1) +" di "+ str(tot_trials))
+                            print(LTP,LTD,cortex_type)
+                            print(i)
+                            nest.Simulate(len_trial)
+
+                            
+                        rasters = utils.get_spike_values(nest, sd_list, Cereb_recorded_names)
+                        with open(f'./cereb_test/rasters_trials_'+cortex_type+"_"+str(tot_trials)+'_LTP_'+str(LTP)+"_LTD_"+str(LTD)+"_test", 'wb') as pickle_file:
+                            pickle.dump(rasters, pickle_file)
+
+
+                        with open(f'./cereb_test/model_dict_trials_'+cortex_type+"_"+str(tot_trials)+'_LTP_'+str(LTP)+"_LTD_"+str(LTD)+"_test", 'wb') as pickle_file:
+                            pickle.dump(model_dict, pickle_file)
+
+        else:
+
+            #nest.ResetKernel()
+            cereb = Cereb_class(nest, hdf5_file_name,cortex_type="dynamic_poisson", n_spike_generators=500,
+                        mode='external_dopa', experiment='active', dopa_depl=0)
+        
+            recorded_list = [cereb.Cereb_pops[name] for name in Cereb_recorded_names]
+            sd_list = utils.attach_spikedetector(nest, recorded_list)
             
-                ct = cereb.create_ctxinput(nest, pos_file=hdf5_file_name, in_spikes=cortex_type, 
-                                    experiment='EBCC', CS =CS, US =US, tot_trials = tot_trials, len_trial = len_trial)
-                recorded_list = [cereb.Cereb_pops[name] for name in Cereb_recorded_names]
-                sd_list = utils.attach_spikedetector(nest, recorded_list)
+            model_dict = utils.create_model_dictionary(0, Cereb_recorded_names, {**cereb.Cereb_pop_ids}, len_trial,
+                                                        sample_time=1., settling_time=set_time,
+                                                        trials=tot_trials, b_c_params=[])
+            
+
+            print("Simulating settling time: " + str(set_time) )
+
+            nest.Simulate(set_time)
+
+            
+            for trial in range(tot_trials):
                 
-                model_dict = utils.create_model_dictionary(0, Cereb_recorded_names, {**cereb.Cereb_pop_ids}, len_trial,
-                                                            sample_time=1., settling_time=set_time,
-                                                            trials=tot_trials, b_c_params=[])
+                print("Simulating trial: " + str(trial +1) +" di "+ str(tot_trials))
                 
+                nest.Simulate(len_trial)
 
-                print("Simulating settling time: " + str(set_time) )
-
-                #nest.Simulate(set_time)
-
-                
-                for trial in range(tot_trials):
-                    
-                    '''
-                    # CS_spk = np.around(np.linspace(CS["start"]+ set_time +(trial*len_trial),CS["stop"]+ set_time +(trial*len_trial),22), decimals=1)
-                    # CS_stim = nest.Create("spike_generator", len(glom_id), {"spike_times":CS_spk})
-
-                    # CS_stim = nest.Create("poisson_generator", len(glom_id), {"start":500.+(trial*len_trial), "stop":760.+(trial*len_trial), "rate":36.})
-                    #nest.Connect(CS_stim, glom_id, "one_to_one")
-                    '''
-
-                    '''
-                    # US_spk = np.around(np.linspace(US["start"]+ set_time +(trial*len_trial),US["stop"]+ set_time +(trial*len_trial),int(US["freq"]*1000/(US["stop"]-US["start"]))), decimals=1)
-                    # US_stim = nest.Create("spike_generator", len(IO_id), {"spike_times":US_spk})
-                    
-                    # US_stim = nest.Create("poisson_generator", len(IO_id), {"start":750.+(trial*len_trial), "stop":760.+(trial*len_trial), "rate":200.})
-                    nest.Connect(US_stim, IO_id, "all_to_all", {"receptor_type": 1, "delay":1.,"weight":10.})
-                    '''
-                    
-                    print("Simulating trial: " + str(trial +1) +" di "+ str(tot_trials))
-                    print(LTP,LTD,cortex_type)
-                    print(i)
-                    nest.Simulate(len_trial)
-
-                    
-                rasters = utils.get_spike_values(nest, sd_list, Cereb_recorded_names)
-                with open(f'./cereb_test/rasters_trials_'+cortex_type+"_"+str(tot_trials)+'_LTP_'+str(LTP)+"_LTD_"+str(LTD)+"_test", 'wb') as pickle_file:
-                    pickle.dump(rasters, pickle_file)
+            
+            rasters = utils.get_spike_values(nest, sd_list, Cereb_recorded_names)
+            with open(f'{savings_dir}/rasters', 'wb') as pickle_file:
+                pickle.dump(rasters, pickle_file)
 
 
-                with open(f'./cereb_test/model_dict_trials_'+cortex_type+"_"+str(tot_trials)+'_LTP_'+str(LTP)+"_LTD_"+str(LTD)+"_test", 'wb') as pickle_file:
-                    pickle.dump(model_dict, pickle_file)
+            with open(f'{savings_dir}/model_dic', 'wb') as pickle_file:
+                pickle.dump(model_dict, pickle_file)
