@@ -4,7 +4,7 @@ import pickle as p
 import matplotlib.pyplot as plt
 import numpy as np
 import math
-
+import seaborn as sns
 
 def calculate_fr(raster_list, pop_dim_ids, t_start=0., t_end=None, return_CV_name=False):
     """ Function to evaluate the firing rate and the
@@ -23,7 +23,7 @@ def calculate_fr(raster_list, pop_dim_ids, t_start=0., t_end=None, return_CV_nam
         pop_dim = pop_dim_ids[pop_name][1] - pop_dim_ids[pop_name][0] + 1
         t_prev = -np.ones(pop_dim)  # to save the last spike time for idx-th neuron
         ISI_list = [[] for _ in range(pop_dim)]  # list of list, will contain the ISI for each neuron
-        for tt, idx in zip(raster['times'], raster['neurons_idx'] - pop_dim_ids[pop_name][0] - 1):
+        for tt, idx in zip(raster['times'], raster['neurons_idx'] - pop_dim_ids[pop_name][0]):
             if tt > t_start:  # consider just element after t_start
                 if tt < t_end:
                     if t_prev[idx] == -1:  # first spike of the neuron
@@ -51,12 +51,28 @@ def calculate_fr(raster_list, pop_dim_ids, t_start=0., t_end=None, return_CV_nam
 
 # from marco_nest_utils import utils
 path = "/home/modelling/Desktop/benedetta/BGs_Cereb_nest_PD/"
-name = 'shared_results/complete_580ms_x_101_sol17_both_dopa_EBCC_test34_dcn_io'
+name ="shared_results/complete_580ms_x_101_sol17_both_dopa_EBCC_test0_ctx_diff"
+name ="shared_results/complete_580ms_x_1_sol17_both_dopa_EBCC_test11_ctx_diff_pc"
+name ="shared_results/complete_580ms_x_101_sol17_both_dopa_EBCC_test10_ctx_diff_input_pc_winds_adj_tuning"
+name = "shared_results/complete_3000ms_x_1_sol17_both_dopa_active_test8_ctx_diff_input_pc_winds_adj_tuning"
+name = "shared_results/complete_3000ms_x_1_sol18_both_dopa_active_test1_ctx_diff_input_pc_winds_adj_test_original"
+name = "shared_results/complete_580ms_x_101_sol17_both_dopa_EBCC_test1_ctx_diff_input_pc_winds_adj_test_original"
+# name = "savings/complete_3000ms"
+name = "savings/cereb_active_trial_2"
+# name = 'shared_results/complete_3000ms_x_1_sol17_both_dopa_active_test8_ctx_diff_input_pc_winds_adj_test_original'
+# name = "learning_test/"
+# name = 'shared_results/complete_580ms_x_101_sol17_both_dopa_EBCC_test32_dcn_io'
+# name = "shared_results/complete_3000ms_x_1_sol17_both_dopa_active_test0_all_plast_ctx"
+# name = "shared_results/complete_3000ms_x_1_sol17_internal_dopa_active_test0_dopadepl_8"
 # name = "cereb_test"
 name1 = "_resting_state_test"
 # name1 = "_test_new"
-name1 = "_trials_EBCC2_1_LTP_0.000225_LTD_6e-05"
-name1=''
+name1 = "_trials_EBCC2_5_LTP_0.000225_LTD_6e-05"
+name1='_5_LTP_2.2e-05_LTD_8e-05'
+name1="_101_test_4"
+name1="_active_3000.0ms_test1"
+# name1 = '_5'
+name1 = ""
 f = open(path + name + "/rasters"+name1,"rb")
 rster = p.load(f)
 f.close()
@@ -72,6 +88,7 @@ len_trial = int(sim_time + set_time)
 len_trial = int(sim_time)
 #%%
 fr = calculate_fr(rster, model["pop_ids"], t_start=0., t_end=None, return_CV_name=False)
+print(fr)
 #%%
 
 iter = model["trials"] 
@@ -84,7 +101,7 @@ len_trial = int(sim_time)
 g_size = {"purkinje":20., "dcn":10., "glomerulus":20., "io":20.}
 cells_id = {"purkinje":[model["pop_ids"]["purkinje"][0],model["pop_ids"]["purkinje"][1]], 
             "dcn":[model["pop_ids"]["dcn"][0],model["pop_ids"]["dcn"][1]], 
-            "glomerulus":[model["pop_ids"]["glomerulus"][0],model["pop_ids"]["glomerulus"][0]+300], 
+            "glomerulus":[model["pop_ids"]["glomerulus"][0],model["pop_ids"]["glomerulus"][0]+20], 
             "io":[model["pop_ids"]["io"][0],model["pop_ids"]["io"][1]]}
 
 
@@ -157,19 +174,69 @@ for cell in cells:
 
 # %%
 
-plt.plot(all_sdf_mean["purkinje"][30])
+plt.plot(all_sdf_mean["purkinje"][1])
 
 #%%
 plt.plot(all_sdf_mean["purkinje"][30][150:300])
 # %%
-import seaborn as sns
+
 iter = model["trials"] 
 palette = list(reversed(sns.color_palette("viridis", iter).as_hex()))
-print(palette)
+sm = plt.cm.ScalarMappable(cmap="viridis_r", norm=plt.Normalize(vmin=0, vmax=101))
 
+# %%
+for i in range(0,101):
+    plt.title("Glom")
+    plt.plot(all_sdf_mean["glomerulus"][i], palette[i])
+plt.xlabel("Time [ms]")
+plt.ylabel("SDF[Hz]")
+
+plt.colorbar(sm, label="Trial")
+plt.show()
+#%%
+for i in range(0,101):
+    plt.title("io")
+    plt.plot(all_sdf_mean["io"][i], palette[i])
+plt.xlabel("Time [ms]")
+plt.ylabel("SDF[Hz]")
+plt.colorbar(sm, label="Trial")
+
+plt.show()
+# %%
+for i in range(0,100):
+    plt.title("PC")
+    plt.plot(all_sdf_mean["purkinje"][i], palette[i])
+plt.xlabel("Time [ms]")
+plt.ylabel("SDF[Hz]")
+plt.colorbar(sm, label="Trial")
+# %%
+for i in range(0,100):
+    plt.title("dcn")
+    plt.plot(all_sdf_mean["dcn"][i], palette[i])
+plt.xlabel("Time [ms]")
+plt.ylabel("SDF[Hz]")
+plt.colorbar(sm, label="Trial")
 # %%
 for i in range(0,101):
     #plt.title(cell  + name1)
     plt.plot(all_sdf_mean["glomerulus"][i])#, palette[i])
 plt.show()
+# %%
+
+id = 0
+
+t = rster[id]["times"]
+times = t.reshape(len(t),1)
+ev = rster[id]["neurons_idx"]
+ev = ev.reshape(len(ev),1)
+act = np.concatenate([times,ev], axis=1)
+# %%
+
+fig = plt.figure(figsize=[15,15])
+plt.scatter(rster[id]["times"], rster[id]["neurons_idx"], s =1)
+
+plt.xlabel("Time [ms]")
+plt.ylabel("Glom idx")
+plt.title("Raster Glom")
+
 # %%
